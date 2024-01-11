@@ -1,4 +1,4 @@
-from robotpy_toolkit_7407.oi import (
+from toolkit.oi import (
     XBoxController,
     LogitechController,
     JoystickAxis,

@@ -1,6 +1,6 @@
 import commands2
-from robotpy_toolkit_7407.subsystem import Subsystem
-import ctre
+from toolkit.subsystem import Subsystem
+import phoenix5 as ctre
 import ntcore
 import wpilib
 import command

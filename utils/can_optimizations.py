@@ -1,6 +1,6 @@
-from ctre import StatusFrameEnhanced
-from robotpy_toolkit_7407.motors import TalonFX
-from robotpy_toolkit_7407.motors.ctre_motors import _Talon
+from phoenix6 import StatusFrameEnhanced
+from toolkit.motors import TalonFX
+from toolkit.motors.ctre_motors import _Talon
 
 
 def optimize_normal_talon(t: TalonFX | _Talon):
