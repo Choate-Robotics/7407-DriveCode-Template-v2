@@ -3,15 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
-import phoenix6
+import phoenix5 as ctre
+import math
 
 from toolkit.motor import PIDMotor
-from units.SI import radians_per_second, radians
-from units import Unum
+from units.SI import radians_per_second, radians, seconds
+import units
 
-rad = float
-rev = float
-s = float
+radians_per_second_squared = float
+
 
 @dataclass
 class TalonConfig:
@@ -38,17 +38,18 @@ class TalonConfig:
     max_integral_accumulator: Optional[float] = None
 
 
-talon_sensor_unit = Unum.unit("talon_sensor_u", rev / 2048, "talon sensor unit")
-hundred_ms = Unum.unit("100ms", s / 10, "100 milliseconds")
+talon_sensor_unit = 2048
+hundred_ms = 100
+s = 1000
 talon_sensor_vel_unit = talon_sensor_unit / hundred_ms
 talon_sensor_accel_unit = talon_sensor_vel_unit / s
 
-k_sensor_pos_to_radians = talon_sensor_unit.asNumber(rad)
-k_radians_to_sensor_pos = rad.asNumber(talon_sensor_unit)
-k_sensor_vel_to_rad_per_sec = talon_sensor_vel_unit.asNumber(rad / s)
-k_rad_per_sec_to_sensor_vel = (rad / s).asNumber(talon_sensor_unit / hundred_ms)
-k_sensor_accel_to_rad_per_sec_sq = talon_sensor_accel_unit.asNumber(rad / (s * s))
-k_rad_per_sec_sq_to_sensor_accel = (rad / (s * s)).asNumber(talon_sensor_unit / (s * hundred_ms))
+k_sensor_pos_to_radians = talon_sensor_unit / 2 * math.pi
+k_radians_to_sensor_pos = 2 * math.pi / talon_sensor_unit
+k_sensor_vel_to_rad_per_sec = 1000 * 2 * math.pi
+k_rad_per_sec_to_sensor_vel = 1 / (1000 * 2 * math.pi)
+k_sensor_accel_to_rad_per_sec_sq = 1000 * 2 * math.pi
+k_rad_per_sec_sq_to_sensor_accel = 1 / (1000 * 2 * math.pi)
 
 
 class _Talon(PIDMotor):

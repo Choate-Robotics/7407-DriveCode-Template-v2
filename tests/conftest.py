@@ -1,7 +1,7 @@
 import pytest
 import wpilib
 from unittest import mock
-import ctre
+import phoenix5 as ctre
 import commands2
 import rev
 from robot_systems import Robot, Sensors, Pneumatics

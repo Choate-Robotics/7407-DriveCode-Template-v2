@@ -5,7 +5,7 @@ from typing import Optional
 from rev import CANSparkMax, SparkMaxPIDController, SparkMaxRelativeEncoder, SparkMaxAlternateEncoder
 
 from toolkit.motor import PIDMotor
-from units.SI import radians, radians_per_second, rad, s, rotations_per_second, \
+from units.SI import radians, radians_per_second, seconds, rotations_per_second, \
     rotations
     
 rev = float
@@ -42,14 +42,14 @@ class SparkMaxConfig:
     idle_mode: Optional[CANSparkMax.IdleMode] = None
 
 
-rev_sensor_unit = Unum.unit("rev_sensor_u", rev / 4096, "rev sensor unit")
-rev_sensor_vel_unit = rev_sensor_unit / hundred_ms
-rev_sensor_accel_unit = rev_sensor_vel_unit / s
+# rev_sensor_unit = Unum.unit("rev_sensor_u", rev / 4096, "rev sensor unit")
+# rev_sensor_vel_unit = rev_sensor_unit / hundred_ms
+# rev_sensor_accel_unit = rev_sensor_vel_unit / s
 
-k_sensor_pos_to_radians = rev.asNumber(rad)
-k_radians_to_sensor_pos = rad.asNumber(rev)
-k_sensor_vel_to_rad_per_sec = (rev / minute).asNumber(rad / s)
-k_rad_per_sec_to_sensor_vel = (rad / s).asNumber(rev / minute)
+# k_sensor_pos_to_radians = rev.asNumber(rad)
+# k_radians_to_sensor_pos = radians.asNumber(rev)
+# k_sensor_vel_to_rad_per_sec = (rev / minute).asNumber(rad / s)
+# k_rad_per_sec_to_sensor_vel = (rad / s).asNumber(rev / minute)
 
 
 class SparkMax(PIDMotor):
