@@ -1,7 +1,7 @@
 import pytest
-from robotpy_toolkit_7407.motors.rev_motors import SparkMax
-from ctre import TalonFX, ControlMode
-from robotpy_toolkit_7407.subsystem import Subsystem as Subsystem_C
+from toolkit.motors.rev_motors import SparkMax
+from phoenix5 import TalonFX, ControlMode
+from toolkit.subsystem import Subsystem as Subsystem_C
 
 # to test a subsystem, you need to create a mechanism
 

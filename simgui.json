@@ -3,5 +3,8 @@
     "types": {
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler"
     }
+  },
+  "NetworkTables Info": {
+    "visible": true
   }
 }
