@@ -1,6 +1,6 @@
 import commands2
 from toolkit.subsystem import Subsystem
-import phoenix5 as ctre
+import phoenix6 as ctre
 import ntcore
 import wpilib
 import command
@@ -21,7 +21,7 @@ class _Robot(wpilib.TimedRobot):
         self.nt = ntcore.NetworkTableInstance.getDefault()
 
     def robotInit(self):
-        self.log._robot_log_setup()
+        # self.log._robot_log_setup()
         # Initialize Operator Interface
         if config.DEBUG_MODE == True:
             self.log.setup("WARNING: DEBUG MODE IS ENABLED")
@@ -66,6 +66,7 @@ class _Robot(wpilib.TimedRobot):
                 raise e
 
         self.log.complete("Robot initialized")
+        ...
 
     def robotPeriodic(self):
         if self.isSimulation():
@@ -84,6 +85,10 @@ class _Robot(wpilib.TimedRobot):
                 self.log.error(e)
                 self.nt.getTable("errors").putString("command scheduler", str(e))
                 raise e
+            
+
+        Robot.drivetrain.update_tables()
+        ...
 
     # Initialize subsystems
 
