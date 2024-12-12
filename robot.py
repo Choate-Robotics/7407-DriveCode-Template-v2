@@ -19,6 +19,7 @@ class _Robot(wpilib.TimedRobot):
 
         self.log = utils.LocalLogger("Robot")
         self.nt = ntcore.NetworkTableInstance.getDefault()
+        self.scheduler = commands2.CommandScheduler.getInstance()
 
     def robotInit(self):
         # self.log._robot_log_setup()
@@ -28,7 +29,7 @@ class _Robot(wpilib.TimedRobot):
         OI.init()
         OI.map_controls()
         period = 0.03
-        commands2.CommandScheduler.getInstance().setPeriod(period)
+        self.scheduler.setPeriod(period)
         self.log.info(f"Scheduler period set to {period} seconds")
 
         # Initialize subsystems
@@ -74,13 +75,13 @@ class _Robot(wpilib.TimedRobot):
 
         if config.DEBUG_MODE == False:
             try:
-                commands2.CommandScheduler.getInstance().run()
+                self.scheduler.run()
             except Exception as e:
                 self.log.error(e)
                 self.nt.getTable("errors").putString("command scheduler", str(e))
         else:
             try:
-                commands2.CommandScheduler.getInstance().run()
+                self.scheduler.run()
             except Exception as e:
                 self.log.error(e)
                 self.nt.getTable("errors").putString("command scheduler", str(e))
@@ -96,6 +97,10 @@ class _Robot(wpilib.TimedRobot):
 
     def teleopInit(self):
         self.log.info("Teleop initialized")
+        self.scheduler.schedule(commands2.SequentialCommandGroup(
+            command.DrivetrainZero(Robot.drivetrain),
+            command.DriveSwerveCustom(Robot.drivetrain)
+            ))
 
     def teleopPeriodic(self):
         pass

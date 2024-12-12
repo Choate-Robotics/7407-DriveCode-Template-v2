@@ -12,13 +12,21 @@ from math import radians
 from wpimath.units import seconds
 from enum import Enum
 import logging
+import math
 
-def curve(x):
-    if abs(x) < 0.11:
+def deadzone(x, d=config.drivetrain_deadzone):
+    if abs(x) < d:
         return 0
     if x < 0:
-        return 1.12*(x + .11)
-    return 1.12*(x - .11)
+        return (x+d)/(1-d)
+    return (x-d)/(1-d)
+
+def curve(x, d=config.drivetrain_deadzone, c=config.drivetrain_curve):
+    if abs(x) < d:
+        return 0
+    elif x < 0:
+        return -1*math.pow((-1*(x+d)/(1-d)), c)
+    return math.pow(((x-d)/(1-d)), c)
 
 def bound_angle(degrees: float):
     degrees = degrees % 360
@@ -39,13 +47,13 @@ class DriveSwerveCustom(SubsystemCommand[Drivetrain]):
 
     def execute(self) -> None:
         dx, dy, d_theta = (
-            self.subsystem.axis_dx.value * (1 if config.drivetrain_reversed else -1),
-            self.subsystem.axis_dy.value * (1 if config.drivetrain_reversed else -1),
+            self.subsystem.axis_dx.value * -1,
+            self.subsystem.axis_dy.value * 1,
             self.subsystem.axis_rotation.value,
         )
 
-        dx = curve(dx)
-        dy = curve(dy)
+        dx = deadzone(dx)
+        dy = deadzone(dy)
         d_theta = curve(d_theta)
 
         dx *= self.subsystem.max_vel
@@ -82,7 +90,7 @@ class DrivetrainZero(SubsystemCommand[Drivetrain]):
 
     def initialize(self) -> None:
         print("ZEROING DRIVETRAIN")
-        self.subsystem.reset_gyro(radians(180))
+        self.subsystem.reset_gyro(config.drivetrain_zero)
         self.subsystem.n_front_left.zero()
         self.subsystem.n_front_right.zero()
         self.subsystem.n_back_left.zero()

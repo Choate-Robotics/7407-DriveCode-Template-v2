@@ -1,6 +1,7 @@
 from units.SI import radians
 from wpilib import AnalogEncoder
 from toolkit.motors.ctre_motors import TalonConfig
+import math
 
 
 DEBUG_MODE: bool = True
@@ -32,30 +33,40 @@ front_left_move_id: int = 2
 front_left_turn_id: int = 1
 front_left_encoder_port: AnalogEncoder = AnalogEncoder(0)
 front_left_encoder_zeroed_pos: float = 0.362
+front_left_turn_inverted = False
+front_left_move_inverted = False
 
 front_right_move_id: int = 4
 front_right_turn_id: int = 3
 front_right_encoder_port: AnalogEncoder = AnalogEncoder(1)
 front_right_encoder_zeroed_pos: float = 0.034
+front_right_turn_inverted = False
+front_right_move_inverted = False
 
 back_left_move_id: int = 8
 back_left_turn_id: int = 7
 back_left_encoder_port: AnalogEncoder = AnalogEncoder(3)
 back_left_encoder_zeroed_pos: float = 0.735
+back_left_turn_inverted = False
+back_left_move_inverted = False
 
 back_right_move_id: int = 6
 back_right_turn_id: int = 5
 back_right_encoder_port: AnalogEncoder = AnalogEncoder(2)
 back_right_encoder_zeroed_pos: float = 0.713
+back_right_turn_inverted = False
+back_right_move_inverted = False
 
 driver_centric: bool = True
-drivetrain_reversed: bool = False
+drivetrain_deadzone: float = 0.1
+drivetrain_curve: float = 3.00000
+drivetrain_zero: radians = math.radians(180)
 
-TURN_CONFIG = TalonConfig(  #2024 crescendo values subject to change
-    50, 0, 0, .25, 0, brake_mode=True
+TURN_CONFIG = TalonConfig(
+    .9, 0, 0, 0, 0, brake_mode=True
 )
 
-MOVE_CONFIG = TalonConfig(  #2024 crescendo values subject to change
+MOVE_CONFIG = TalonConfig(
     0.11,
     0,
     0,

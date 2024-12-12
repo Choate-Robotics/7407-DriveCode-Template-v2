@@ -28,6 +28,8 @@ class SwerveNode:
         self.sim_travel_distance: meters = 0
         self.sim_motor_speed: meters_per_second = 0
         self.sim_motor_angle: radians = 0
+        self.nt = ntcore.NetworkTableInstance.getDefault().getTable("Pods")
+
     def init(self):
         """
         Initialize the swerve node.
@@ -64,7 +66,7 @@ class SwerveNode:
 
         self.m_turn.set_sensor_position(motor_change)
 
-        self.m_turn.set_target_position(0)
+        self.m_turn.set_position_duty_cycle(0)
 
     def set(self, vel: meters_per_second, angle_radians: radians_per_second):
         """
@@ -90,7 +92,7 @@ class SwerveNode:
         Args:
             pos (radians): angle of the swerve node in radians
         """
-        self.m_turn.set_target_position(
+        self.m_turn.set_position_duty_cycle(
             (pos / (2 * math.pi)) * constants.drivetrain_turn_gear_ratio
         )
 
@@ -180,6 +182,13 @@ class SwerveNode:
             self.get_motor_velocity(),
             Rotation2d(self.get_turn_motor_angle())
         )
+    
+    def get_target_angle(self) -> radians:
+        return (
+                (self.m_turn.get_target() / constants.drivetrain_turn_gear_ratio)
+                * 2
+                * math.pi
+        )
 
     # 0 degrees is facing right | "ethan is our FRC lord and saviour" - sid
     def _set_angle(self, target_angle: radians, initial_angle: radians):
@@ -211,5 +220,9 @@ class SwerveNode:
             return diff + initial_angle, True, flip_sensor_offset
 
         return diff + initial_angle, False, 0
+    
+    def update_tables(self):
+        self.nt.putNumber(f"{self.name} target angle", bounded_angle_diff(self.get_target_angle(), 0))
+        self.nt.putNumber(f"{self.name} current angle", bounded_angle_diff(self.get_turn_motor_angle(), 0))
 
 

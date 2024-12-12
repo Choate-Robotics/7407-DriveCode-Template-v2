@@ -32,29 +32,29 @@ class Drivetrain(Subsystem):
     Swerve Drivetrain Extendable class. Contains driving functions.
     """
     n_front_left = SwerveNode(
-        TalonFX(config.front_left_move_id, foc=config.foc_active, config=config.MOVE_CONFIG, inverted=False),
-        TalonFX(config.front_left_turn_id, config=config.TURN_CONFIG, inverted=True),
+        TalonFX(config.front_left_move_id, foc=config.foc_active, config=config.MOVE_CONFIG, inverted=config.front_left_move_inverted),
+        TalonFX(config.front_left_turn_id, config=config.TURN_CONFIG, inverted=config.front_left_turn_inverted),
         config.front_left_encoder_port,
         absolute_encoder_zeroed_pos=config.front_left_encoder_zeroed_pos,
         name="n_front_left",
     )
     n_front_right = SwerveNode(
-        TalonFX(config.front_right_move_id, foc=config.foc_active, config=config.MOVE_CONFIG, inverted=True),
-        TalonFX(config.front_right_turn_id, config=config.TURN_CONFIG, inverted=False),
+        TalonFX(config.front_right_move_id, foc=config.foc_active, config=config.MOVE_CONFIG, inverted=config.front_right_move_inverted),
+        TalonFX(config.front_right_turn_id, config=config.TURN_CONFIG, inverted=config.front_right_turn_inverted),
         config.front_right_encoder_port,
         absolute_encoder_zeroed_pos=config.front_right_encoder_zeroed_pos,
         name="n_front_right",
     )
     n_back_left = SwerveNode(
-        TalonFX(config.back_left_move_id, foc=config.foc_active, config=config.MOVE_CONFIG, inverted=True),
-        TalonFX(config.back_left_turn_id, config=config.TURN_CONFIG, inverted=False),
+        TalonFX(config.back_left_move_id, foc=config.foc_active, config=config.MOVE_CONFIG, inverted=config.back_left_move_inverted),
+        TalonFX(config.back_left_turn_id, config=config.TURN_CONFIG, inverted=config.back_left_turn_inverted),
         config.back_left_encoder_port,
         absolute_encoder_zeroed_pos=config.back_left_encoder_zeroed_pos,
         name="n_back_left",
     )
     n_back_right = SwerveNode(
-        TalonFX(config.back_right_move_id, foc=config.foc_active, config=config.MOVE_CONFIG, inverted=False),
-        TalonFX(config.back_right_turn_id, config=config.TURN_CONFIG, inverted=True),
+        TalonFX(config.back_right_move_id, foc=config.foc_active, config=config.MOVE_CONFIG, inverted=config.back_right_move_inverted),
+        TalonFX(config.back_right_turn_id, config=config.TURN_CONFIG, inverted=config.back_right_turn_inverted),
         config.back_right_encoder_port,
         absolute_encoder_zeroed_pos=config.back_right_encoder_zeroed_pos,
         name="n_back_right",
@@ -330,3 +330,13 @@ class Drivetrain(Subsystem):
             n_states[2].angle.radians(), n_states[2].speed,
             n_states[3].angle.radians(), n_states[3].speed
         ])
+
+        pose = self.odometry.getPose()
+
+        self.nt.putNumberArray("Estimated pose", [
+            pose.X(),
+            pose.Y(),
+            pose.rotation().radians()
+        ])
+
+        self.n_front_left.update_tables()
