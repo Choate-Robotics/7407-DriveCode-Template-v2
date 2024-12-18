@@ -76,3 +76,6 @@ MOVE_CONFIG = TalonConfig(
     current_limit=50,
     kV=0.12
 )
+
+# TO CHANGE
+period = 0.02

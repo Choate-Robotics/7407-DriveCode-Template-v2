@@ -1,3 +1,5 @@
+from pathplannerlib.config import HolonomicPathFollowerConfig
+# fix config import soon
 import math
 from units.SI import (
     degrees_per_second__to__radians_per_second,
@@ -40,3 +42,5 @@ drivetrain_max_angular_accel = 720 * degrees_per_second__to__radians_per_second
 drivetrain_move_gear_ratio_as_rotations_per_meter: float = (
     1 / (drivetrain_wheel_diameter * math.pi)
 ) * drivetrain_wheel_gear_ratio
+
+auto_config = HolonomicPathFollowerConfig.from
