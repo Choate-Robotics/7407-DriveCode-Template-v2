@@ -27,6 +27,13 @@ from toolkit.subsystem_templates.drivetrain import (
 )
 import ntcore
 
+# auto imports
+from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.controller import PPHolonomicDriveController
+from pathplannerlib.config import RobotConfig, PIDConstants
+from wpilib import DriverStation
+
+
 class Drivetrain(Subsystem):
     """
     Swerve Drivetrain Extendable class. Contains driving functions.
@@ -92,6 +99,24 @@ class Drivetrain(Subsystem):
         self.sim_node_states: tuple[SwerveModuleState, SwerveModuleState, SwerveModuleState, SwerveModuleState] = None
         self.node_translations: tuple[Translation2d] | None = None
         self.nt = ntcore.NetworkTableInstance.getDefault().getTable("Drivetrain")
+
+        # auto setup
+        self.pp_config = constants.auto_config
+
+        # setup autobuilder
+        AutoBuilder.configure(
+            self.odometry.getPose(),
+            self.reset_odometry_auto(),
+            self.chassis_speeds.fromRobotRelativeSpeeds(),
+            lambda spds, ffs: self.drive_relative(spds),
+            PPHolonomicDriveController(
+                constants.auto_translation_pid,
+                constants.auto_rotation_pid
+            ),
+            self.pp_config,
+            self.should_flip_path,
+            self
+        )
 
     def init(self):
         """
@@ -220,6 +245,9 @@ class Drivetrain(Subsystem):
 
         # self.chassis_speeds = self.kinematics.toChassisSpeeds(*self.node_states)
 
+    def should_flip_path(self):
+        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+
     def periodic(self):
         pass
 
@@ -289,7 +317,7 @@ class Drivetrain(Subsystem):
             pose=pose,
             modulePositions=self.node_positions
         )
-        
+
 
     @staticmethod
     def _calculate_swerve_node(node_x: meters, node_y: meters, dx: meters_per_second, dy: meters_per_second,

@@ -1,4 +1,4 @@
-from pathplannerlib.config import HolonomicPathFollowerConfig
+from pathplannerlib.config import RobotConfig
 # fix config import soon
 import math
 from units.SI import (
@@ -10,6 +10,7 @@ from units.SI import (
     degrees_to_radians,
     meters_per_second_squared,
 )
+from pathplannerlib.config import PIDConstants
 
 #drivetrain
 drivetrain_turn_gear_ratio: float = 150 / 7
@@ -19,6 +20,7 @@ track_length: meters = 18.25 * inches_to_meters #(left/right side)
 drivetrain_length: float = 20 #length of one side of the robot, placeholder
 bumper_thickness: float = 3.5
 drivetrain_length_with_bumpers = drivetrain_length + (2 * bumper_thickness)
+drivetrain_radius: float = 20.5 # TODO: measure this
 
 drivetrain_move_motor_free_speed: rotations_per_minute = (
     6000 #6000 is the free speed RPM of the Kraken without FOC
@@ -43,4 +45,7 @@ drivetrain_move_gear_ratio_as_rotations_per_meter: float = (
     1 / (drivetrain_wheel_diameter * math.pi)
 ) * drivetrain_wheel_gear_ratio
 
-auto_config = HolonomicPathFollowerConfig.from
+auto_config = RobotConfig.fromGUISettings()
+# to change AUTO PIDs
+auto_translation_pid = PIDConstants(5.0, 0.0, 0.0)
+auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
