@@ -4,8 +4,7 @@ import math
 import config
 import constants
 
-from dataclasses import dataclass
-from wpilib import AnalogEncoder, TimedRobot
+from wpilib import TimedRobot, DriverStation
 from wpimath.geometry import Rotation2d, Pose2d, Translation2d
 from wpimath.kinematics import SwerveDrive4Odometry, SwerveDrive4Kinematics, SwerveModuleState, ChassisSpeeds, \
     SwerveModulePosition
@@ -26,6 +25,7 @@ from toolkit.subsystem_templates.drivetrain import (
     SwerveNode
 )
 import ntcore
+from typing import overload
 
 class Drivetrain(Subsystem):
     """
@@ -175,6 +175,7 @@ class Drivetrain(Subsystem):
 
         self.set_robot_centric(vel, angular_vel)
 
+    # @overload
     def set_robot_centric(self, vel: tuple[meters_per_second, meters_per_second], angular_vel: radians_per_second):
         """
         Set the robot centric velocity and angular velocity. Robot centric runs with perspective of robot.
@@ -211,6 +212,27 @@ class Drivetrain(Subsystem):
             self.node_positions
         )
 
+    # @overload
+    # def set_robot_centric(self, speeds: ChassisSpeeds):
+
+    #     self.chassis_speeds = speeds
+
+    #     new_states = self.kinematics.toSwerveModuleStates(self.chassis_speeds)
+    #     normalized_states = self.kinematics.desaturateWheelSpeeds(new_states, self.max_vel)
+    #     # normalized_states = new_states
+    #     fl, fr, bl, br = normalized_states
+            
+    #     self.n_front_left.set(fl.speed, fl.angle.radians())
+    #     self.n_front_right.set(fr.speed, fr.angle.radians())
+    #     self.n_back_left.set(bl.speed, bl.angle.radians())
+    #     self.n_back_right.set(br.speed, br.angle.radians())
+        
+
+    #     self.odometry.update(
+    #         self.get_heading(),
+    #         self.node_positions
+    #     )
+
         
 
         # self.odometry_estimator.update(
@@ -231,6 +253,9 @@ class Drivetrain(Subsystem):
         self.n_front_right.set(0, 0)
         self.n_back_left.set(0, 0)
         self.n_back_right.set(0, 0)
+
+    # def get_speeds(self):
+    #     return self.kinematics.toChassisSpeeds(self.node_states)
         
     def reset_gyro(self, radians: float = 0):
         """
@@ -308,10 +333,10 @@ class Drivetrain(Subsystem):
         return magnitude, theta
     
     def x_mode(self):
-        self.n_front_left.set_motor_angle(math.radians(45))
-        self.n_front_right.set_motor_angle(math.radians(-45))
-        self.n_back_left.set_motor_angle(math.radians(-45))
-        self.n_back_right.set_motor_angle(math.radians(45))
+        self.n_front_left._set_angle(math.radians(45))
+        self.n_front_right._set_angle(math.radians(-45))
+        self.n_back_left._set_angle(math.radians(-45))
+        self.n_back_right._set_angle(math.radians(45))
 
     def get_abs(self):
         fl = self.n_front_left.get_abs()
@@ -319,6 +344,9 @@ class Drivetrain(Subsystem):
         bl = self.n_back_left.get_abs()
         br = self.n_back_right.get_abs()
         return [fl, fr, bl, br]
+    
+    # def should_flip_path(self):
+    #     return DriverStation.getAlliance() == DriverStation.Alliance.kRed
     
     def update_tables(self):
         self.nt.putNumberArray("encoder poses", self.get_abs())
@@ -340,3 +368,6 @@ class Drivetrain(Subsystem):
         ])
 
         self.n_front_left.update_tables()
+        # self.n_front_right.update_tables()
+        # self.n_back_left.update_tables()
+        # self.n_back_right.update_tables()

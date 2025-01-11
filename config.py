@@ -59,11 +59,11 @@ back_right_move_inverted = False
 
 driver_centric: bool = True
 drivetrain_deadzone: float = 0.1
-drivetrain_curve: float = 3.00000
+drivetrain_curve: float = 2
 drivetrain_zero: radians = math.radians(180)
 
 TURN_CONFIG = TalonConfig(
-    .9, 0, 0, 0, 0, brake_mode=True
+    .9, 0, 0, 0, 0, brake_mode=True,
 )
 
 MOVE_CONFIG = TalonConfig(
@@ -73,6 +73,6 @@ MOVE_CONFIG = TalonConfig(
     0.25,
     0.01,
     brake_mode=True,
-    current_limit=50,
+    current_limit=40,
     kV=0.12
 )

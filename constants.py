@@ -14,7 +14,7 @@ drivetrain_turn_gear_ratio: float = 150 / 7
 drivetrain_wheel_gear_ratio: float = 5.9
 track_width: meters = 19.75 * inches_to_meters #distance between the center of the wheels (front side)
 track_length: meters = 18.25 * inches_to_meters #(left/right side)
-drivetrain_length: float = 20 #length of one side of the robot, placeholder
+drivetrain_length: meters = 20 #length of one side of the robot, placeholder
 bumper_thickness: float = 3.5
 drivetrain_length_with_bumpers = drivetrain_length + (2 * bumper_thickness)
 
@@ -27,10 +27,10 @@ drivetrain_wheel_diameter: meters = (
 )  
  
 
-drivetrain_max_vel:meters = (
+drivetrain_max_vel: meters = (
     ((drivetrain_move_motor_free_speed / 60) / drivetrain_wheel_gear_ratio) * (drivetrain_wheel_diameter * math.pi)
     )
-# drivetrain_max_vel = 17.7
+# drivetrain_max_vel = 5.4 m/s, 17.7 ft/s, 12.1 mph
 drivetrain_max_accel: meters_per_second_squared = 0 # setting to 0 will set to default motor accel
 drivetrain_max_angular_vel = 720 * degrees_per_second__to__radians_per_second
 drivetrain_max_angular_accel = 720 * degrees_per_second__to__radians_per_second

@@ -68,6 +68,7 @@ class SwerveNode:
 
         self.m_turn.set_position_duty_cycle(0)
 
+
     def set(self, vel: meters_per_second, angle_radians: radians_per_second):
         """
         Set the velocity and angle of the swerve node.
@@ -84,10 +85,9 @@ class SwerveNode:
             self.sim_travel_distance += vel * .03
             self.sim_motor_angle = angle_radians
 
-    # OVERRIDDEN FUNCTIONS
     def set_motor_angle(self, pos: radians):
         """
-        Set the angle of the swerve node. Must be overridden.
+        Set the angle of the swerve node.
 
         Args:
             pos (radians): angle of the swerve node in radians
@@ -98,7 +98,7 @@ class SwerveNode:
 
     def get_turn_motor_angle(self) -> radians:
         """
-        Get the current angle of the swerve node. Must be overridden. Must return radians.
+        Get the current angle of the swerve node.
         """
         return (
                 (self.m_turn.get_sensor_position() / constants.drivetrain_turn_gear_ratio)
@@ -189,6 +189,12 @@ class SwerveNode:
                 * 2
                 * math.pi
         )
+    
+    def get_target_velocity(self) -> meters_per_second:
+        return (
+                self.m_move.get_target_velocity()
+                / constants.drivetrain_move_gear_ratio_as_rotations_per_meter
+        )
 
     # 0 degrees is facing right | "ethan is our FRC lord and saviour" - sid
     def _set_angle(self, target_angle: radians, initial_angle: radians):
@@ -225,4 +231,5 @@ class SwerveNode:
         self.nt.putNumber(f"{self.name} target angle", bounded_angle_diff(self.get_target_angle(), 0))
         self.nt.putNumber(f"{self.name} current angle", bounded_angle_diff(self.get_turn_motor_angle(), 0))
 
-
+        self.nt.putNumber(f"{self.name} target velocity", self.get_target_velocity())
+        self.nt.putNumber(f"{self.name} current velocity", self.get_motor_velocity())
