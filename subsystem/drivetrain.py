@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import overload
 
 import math
 import config
@@ -105,10 +106,10 @@ class Drivetrain(Subsystem):
 
         # setup autobuilder
         AutoBuilder.configure(
-            self.odometry.getPose(),
-            self.reset_odometry_auto(),
-            self.chassis_speeds.fromRobotRelativeSpeeds(),
-            lambda spds, ffs: self.drive_relative(spds),
+            self.odometry.getPose,
+            self.reset_odometry,
+            self.chassis_speeds.fromRobotRelativeSpeeds,
+            lambda spds, ffs: self.set_robot_centric(spds, 0),
             PPHolonomicDriveController(
                 constants.auto_translation_pid,
                 constants.auto_rotation_pid
@@ -184,6 +185,7 @@ class Drivetrain(Subsystem):
             self.n_back_right.get_node_state()
         )
 
+
     def set_driver_centric(self, vel: tuple[meters_per_second, meters_per_second], angular_vel: radians_per_second):
         """
         Set the driver centric velocity and angular velocity. Driver centric runs with perspective of driver.
@@ -200,7 +202,12 @@ class Drivetrain(Subsystem):
 
         self.set_robot_centric(vel, angular_vel)
 
-    def set_robot_centric(self, vel: tuple[meters_per_second, meters_per_second], angular_vel: radians_per_second):
+    # TODO: Overload mtd to take in just a chassis speed
+    @overload
+    def set_robot_centric(self, vel: float, angular_vel: radians_per_second): ...
+    @overload
+    def set_robot_centric(self, vel: tuple[meters_per_second, meters_per_second], angular_vel: radians_per_second): ...
+    def set_robot_centric(self, vel: float | tuple[meters_per_second, meters_per_second], angular_vel: radians_per_second):
         """
         Set the robot centric velocity and angular velocity. Robot centric runs with perspective of robot.
         Args:
@@ -208,15 +215,18 @@ class Drivetrain(Subsystem):
             angular_vel: angular velocity in radians per second
         """
 
-        dx, dy = vel
+        if isinstance(vel, tuple):
+            dx, dy = vel
 
-        dx = 0 if abs(dx) < self.deadzone_velocity else dx
+            dx = 0 if abs(dx) < self.deadzone_velocity else dx
 
-        dy = 0 if abs(dy) < self.deadzone_velocity else dy
+            dy = 0 if abs(dy) < self.deadzone_velocity else dy
 
-        angular_vel = 0 if abs(angular_vel) < self.deadzone_angular_velocity else angular_vel
+            angular_vel = 0 if abs(angular_vel) < self.deadzone_angular_velocity else angular_vel
 
-        self.chassis_speeds = ChassisSpeeds(dx, dy, angular_vel)
+            self.chassis_speeds = ChassisSpeeds(dx, dy, angular_vel)
+
+        self.chassis_speeds = vel
 
         new_states = self.kinematics.toSwerveModuleStates(self.chassis_speeds)
         normalized_states = self.kinematics.desaturateWheelSpeeds(new_states, self.max_vel)
@@ -282,7 +292,7 @@ class Drivetrain(Subsystem):
             return Rotation2d(self._sim_omega + self.gyro_offset)
         return Rotation2d(self.gyro.get_robot_heading() + self.gyro_offset)
 
-    def reset_odometry(self, pose: Pose2d):
+    def reset_odometry(self, pose: Pose2d) -> None:
         """
         Reset the odometry to a given pose.
 
