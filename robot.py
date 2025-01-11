@@ -1,6 +1,6 @@
 import commands2
 from toolkit.subsystem import Subsystem
-import phoenix5 as ctre
+import phoenix6 as ctre
 import ntcore
 import wpilib
 import command
@@ -19,16 +19,17 @@ class _Robot(wpilib.TimedRobot):
 
         self.log = utils.LocalLogger("Robot")
         self.nt = ntcore.NetworkTableInstance.getDefault()
+        self.scheduler = commands2.CommandScheduler.getInstance()
 
     def robotInit(self):
-        self.log._robot_log_setup()
+        # self.log._robot_log_setup()
         # Initialize Operator Interface
         if config.DEBUG_MODE == True:
             self.log.setup("WARNING: DEBUG MODE IS ENABLED")
         OI.init()
         OI.map_controls()
         period = 0.03
-        commands2.CommandScheduler.getInstance().setPeriod(period)
+        self.scheduler.setPeriod(period)
         self.log.info(f"Scheduler period set to {period} seconds")
 
         # Initialize subsystems
@@ -66,6 +67,7 @@ class _Robot(wpilib.TimedRobot):
                 raise e
 
         self.log.complete("Robot initialized")
+        ...
 
     def robotPeriodic(self):
         if self.isSimulation():
@@ -73,17 +75,21 @@ class _Robot(wpilib.TimedRobot):
 
         if config.DEBUG_MODE == False:
             try:
-                commands2.CommandScheduler.getInstance().run()
+                self.scheduler.run()
             except Exception as e:
                 self.log.error(e)
                 self.nt.getTable("errors").putString("command scheduler", str(e))
         else:
             try:
-                commands2.CommandScheduler.getInstance().run()
+                self.scheduler.run()
             except Exception as e:
                 self.log.error(e)
                 self.nt.getTable("errors").putString("command scheduler", str(e))
                 raise e
+            
+
+        Robot.drivetrain.update_tables()
+        ...
 
     # Initialize subsystems
 
@@ -91,6 +97,10 @@ class _Robot(wpilib.TimedRobot):
 
     def teleopInit(self):
         self.log.info("Teleop initialized")
+        self.scheduler.schedule(commands2.SequentialCommandGroup(
+            command.DrivetrainZero(Robot.drivetrain),
+            command.DriveSwerveCustom(Robot.drivetrain)
+            ))
 
     def teleopPeriodic(self):
         pass
