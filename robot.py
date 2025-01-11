@@ -11,6 +11,7 @@ import sensors
 import subsystem
 import utils
 from oi.OI import OI
+from pathplannerlib.auto import PathPlannerPath, FollowPathCommand, AutoBuilder
 
 
 class _Robot(wpilib.TimedRobot):
@@ -107,6 +108,8 @@ class _Robot(wpilib.TimedRobot):
 
     def autonomousInit(self):
         self.log.info("Autonomous initialized")
+        path = PathPlannerPath.fromPathFile("Example Path")
+        self.scheduler.schedule(AutoBuilder.followPath(path))
 
     def autonomousPeriodic(self):
         pass

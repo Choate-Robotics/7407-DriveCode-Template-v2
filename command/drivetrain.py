@@ -65,7 +65,7 @@ class DriveSwerveCustom(SubsystemCommand[Drivetrain]):
         if config.driver_centric:
             self.subsystem.set_driver_centric((dy, dx), -d_theta)
         else:
-            self.subsystem.set_robot_centric((dy, -dx), d_theta)
+            self.subsystem.set_robot_centric((dy, -dx, d_theta))
 
     def end(self, interrupted: bool) -> None:
         self.subsystem.n_front_left.set_motor_velocity(0)

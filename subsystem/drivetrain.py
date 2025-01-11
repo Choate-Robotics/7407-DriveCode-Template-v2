@@ -19,7 +19,6 @@ from oi.keymap import Keymap
 from toolkit.oi.joysticks import JoystickAxis
 from toolkit.subsystem import Subsystem
 from toolkit.utils import logger
-from toolkit.motors.rev_motors import SparkMax, SparkMaxConfig
 from toolkit.motors.ctre_motors import TalonFX
 from toolkit.sensors.gyro import Pigeon2
 from toolkit.subsystem import Subsystem
@@ -31,7 +30,7 @@ import ntcore
 # auto imports
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.controller import PPHolonomicDriveController
-from pathplannerlib.config import RobotConfig, PIDConstants
+from pathplannerlib.path import DriveFeedforwards
 from wpilib import DriverStation
 
 
@@ -106,10 +105,10 @@ class Drivetrain(Subsystem):
 
         # setup autobuilder
         AutoBuilder.configure(
-            self.odometry.getPose,
+            self.get_pose,
             self.reset_odometry,
-            self.chassis_speeds.fromRobotRelativeSpeeds,
-            lambda spds, ffs: self.set_robot_centric(spds, 0),
+            self.get_speeds,
+            lambda spds, ffs: self.set_robot_centric(spds),
             PPHolonomicDriveController(
                 constants.auto_translation_pid,
                 constants.auto_rotation_pid
@@ -196,18 +195,12 @@ class Drivetrain(Subsystem):
         """
         # vel = rotate_vector(vel[0], vel[1], -self.gyro.get_robot_heading())
 
-        robo_speed = ChassisSpeeds.fromFieldRelativeSpeeds(vel[0], vel[1], angular_vel, self.get_heading())
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vel[0], vel[1], angular_vel, self.get_heading())
 
-        vel = robo_speed.vx, robo_speed.vy
+        self.set_robot_centric(speeds)
 
-        self.set_robot_centric(vel, angular_vel)
 
-    # TODO: Overload mtd to take in just a chassis speed
-    @overload
-    def set_robot_centric(self, vel: float, angular_vel: radians_per_second): ...
-    @overload
-    def set_robot_centric(self, vel: tuple[meters_per_second, meters_per_second], angular_vel: radians_per_second): ...
-    def set_robot_centric(self, vel: float | tuple[meters_per_second, meters_per_second], angular_vel: radians_per_second):
+    def set_robot_centric(self, speeds: ChassisSpeeds | tuple[meters_per_second, meters_per_second, radians_per_second]):
         """
         Set the robot centric velocity and angular velocity. Robot centric runs with perspective of robot.
         Args:
@@ -215,25 +208,19 @@ class Drivetrain(Subsystem):
             angular_vel: angular velocity in radians per second
         """
 
-        if isinstance(vel, tuple):
-            dx, dy = vel
+        if isinstance(speeds, tuple):
 
-            dx = 0 if abs(dx) < self.deadzone_velocity else dx
+            speeds = ChassisSpeeds(*speeds)
 
-            dy = 0 if abs(dy) < self.deadzone_velocity else dy
-
-            angular_vel = 0 if abs(angular_vel) < self.deadzone_angular_velocity else angular_vel
-
-            self.chassis_speeds = ChassisSpeeds(dx, dy, angular_vel)
-
-        self.chassis_speeds = vel
+            
+        self.chassis_speeds = speeds
 
         new_states = self.kinematics.toSwerveModuleStates(self.chassis_speeds)
         normalized_states = self.kinematics.desaturateWheelSpeeds(new_states, self.max_vel)
         # normalized_states = new_states
         fl, fr, bl, br = normalized_states
             
-        self._sim_omega += angular_vel * .03
+        self._sim_omega += self.chassis_speeds.omega * .03
             
         self.n_front_left.set(fl.speed, fl.angle.radians())
         self.n_front_right.set(fr.speed, fr.angle.radians())
@@ -257,6 +244,12 @@ class Drivetrain(Subsystem):
 
     def should_flip_path(self):
         return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+    
+    def get_pose(self) -> Pose2d:
+        return self.odometry.getPose()
+    
+    def get_speeds(self) -> ChassisSpeeds:
+        return self.chassis_speeds
 
     def periodic(self):
         pass

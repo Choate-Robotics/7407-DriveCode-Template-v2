@@ -62,8 +62,6 @@ class TalonConfig:
         current_limits_config.stator_current_limit_enable = (
             True if self.current_limit > 0 else False
         )
-        current_limits_config.supply_time_threshold = 1
-        # current_limits_config.
 
         # brake mode
         brake_mode_config = talon_config.motor_output
@@ -84,7 +82,7 @@ class TalonConfig:
         magic.motion_magic_jerk = 6000
         magic.motion_magic_cruise_velocity = 20
 
-        res = motor.configurator.apply(talon_config)
+        res = motor.configurator.apply(talon_config, 1)
         if res != StatusCode.OK:
             print(res)
             print('error! config not applying')
