@@ -23,7 +23,7 @@ class _Robot(wpilib.TimedRobot):
         self.scheduler = commands2.CommandScheduler.getInstance()
 
     def robotInit(self):
-        # self.log._robot_log_setup()
+        self.log._robot_log_setup()
         # Initialize Operator Interface
         if config.DEBUG_MODE == True:
             self.log.setup("WARNING: DEBUG MODE IS ENABLED")
@@ -67,6 +67,7 @@ class _Robot(wpilib.TimedRobot):
                 self.nt.getTable("errors").putString("subsystem init", str(e))
                 raise e
 
+        ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
         self.log.complete("Robot initialized")
         ...
 
@@ -89,7 +90,7 @@ class _Robot(wpilib.TimedRobot):
                 raise e
             
 
-        Robot.drivetrain.update_tables()
+        # Robot.drivetrain.update_tables()
         ...
 
     # Initialize subsystems
@@ -98,18 +99,18 @@ class _Robot(wpilib.TimedRobot):
 
     def teleopInit(self):
         self.log.info("Teleop initialized")
-        self.scheduler.schedule(commands2.SequentialCommandGroup(
-            command.DrivetrainZero(Robot.drivetrain),
-            command.DriveSwerveCustom(Robot.drivetrain)
-            ))
+        # self.scheduler.schedule(commands2.SequentialCommandGroup(
+        #     command.DrivetrainZero(Robot.drivetrain),
+        #     command.DriveSwerveCustom(Robot.drivetrain)
+        #     ))
 
     def teleopPeriodic(self):
         pass
 
     def autonomousInit(self):
         self.log.info("Autonomous initialized")
-        path = PathPlannerPath.fromPathFile("Example Path")
-        self.scheduler.schedule(AutoBuilder.followPath(path))
+        # path = PathPlannerPath.fromPathFile("Example Path")
+        # self.scheduler.schedule(AutoBuilder.followPath(path))
 
     def autonomousPeriodic(self):
         pass

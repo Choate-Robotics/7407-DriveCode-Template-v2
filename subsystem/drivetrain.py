@@ -339,10 +339,10 @@ class Drivetrain(Subsystem):
         return magnitude, theta
     
     def x_mode(self):
-        self.n_front_left.set_motor_angle(math.radians(45))
-        self.n_front_right.set_motor_angle(math.radians(-45))
-        self.n_back_left.set_motor_angle(math.radians(-45))
-        self.n_back_right.set_motor_angle(math.radians(45))
+        self.n_front_left.set(0, math.radians(45))
+        self.n_front_right.set(0, math.radians(-45))
+        self.n_back_left.set(0, math.radians(-45))
+        self.n_back_right.set(0, math.radians(45))
 
     def get_abs(self):
         fl = self.n_front_left.get_abs()

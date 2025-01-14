@@ -34,10 +34,10 @@ class SwerveNode:
         """
         Initialize the swerve node.
         """
-        print(f"Initializing {self.name}", self.counter)
-        self.sim_travel_distance = 0
-        self.sim_motor_speed = 0
-        self.sim_motor_angle = 0
+        # print(f"Initializing {self.name}", self.counter)
+        # self.sim_travel_distance = 0
+        # self.sim_motor_speed = 0
+        # self.sim_motor_angle = 0
 
         self.m_move.init()
         self.m_turn.init()
@@ -66,7 +66,7 @@ class SwerveNode:
 
         self.m_turn.set_sensor_position(motor_change)
 
-        self.m_turn.set_position_duty_cycle(0)
+        self.m_turn.set_target_position_voltage(0)
 
     def set(self, vel: meters_per_second, angle_radians: radians_per_second):
         """
@@ -92,7 +92,7 @@ class SwerveNode:
         Args:
             pos (radians): angle of the swerve node in radians
         """
-        self.m_turn.set_position_duty_cycle(
+        self.m_turn.set_target_position_voltage(
             (pos / (2 * math.pi)) * constants.drivetrain_turn_gear_ratio
         )
 
@@ -128,7 +128,7 @@ class SwerveNode:
             constants.drivetrain_move_gear_ratio_as_rotations_per_meter
         ) if constants.drivetrain_max_accel > 0 else 0
 
-        self.m_move.set_target_velocity(rotations_per_second, rotations_per_second_squared)
+        self.m_move.set_target_velocity_voltage(rotations_per_second, rotations_per_second_squared)
         
 
     def get_motor_velocity(self) -> meters_per_second:

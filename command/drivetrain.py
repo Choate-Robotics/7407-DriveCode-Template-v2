@@ -105,3 +105,20 @@ class DrivetrainZero(SubsystemCommand[Drivetrain]):
     def end(self, interrupted: bool) -> None:
         logging.info("Successfully re-zeroed swerve pods.")
         ...
+
+class DrivetrainXMode(SubsystemCommand[Drivetrain]):
+    def __init__(self, subsystem: Drivetrain):
+        super().__init__(subsystem)
+        self.subsystem = subsystem
+
+    def initialize(self) -> None:
+        self.subsystem.x_mode()
+    
+    def execute(self) -> None:
+        pass
+
+    def isFinished(self):
+        return False
+    
+    def end(self, interrupted: bool) -> None:
+        pass
