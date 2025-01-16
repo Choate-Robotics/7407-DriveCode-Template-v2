@@ -49,3 +49,6 @@ auto_config = RobotConfig.fromGUISettings()
 # to change AUTO PIDs
 auto_translation_pid = PIDConstants(5.0, 0.0, 0.0)
 auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
+
+field_length = 17.548
+field_width = 8.052

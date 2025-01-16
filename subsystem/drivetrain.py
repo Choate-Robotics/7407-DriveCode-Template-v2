@@ -246,7 +246,8 @@ class Drivetrain(Subsystem):
         return DriverStation.getAlliance() == DriverStation.Alliance.kRed
     
     def get_pose(self) -> Pose2d:
-        return self.odometry.getPose()
+        pose = self.odometry.getPose()
+        return Pose2d(pose.translation(), self.get_heading())
     
     def get_speeds(self) -> ChassisSpeeds:
         return self.chassis_speeds
@@ -294,13 +295,13 @@ class Drivetrain(Subsystem):
         """
         self.odometry.resetPosition(
             gyroAngle=self.get_heading(),
+            wheelPositions=self.node_positions,
             pose=pose,
-            modulePositions=self.node_positions,
         )
         self.odometry_estimator.resetPosition(
             gyroAngle=self.get_heading(),
+            wheelPositions=self.node_positions,
             pose=pose,
-            modulePositions=self.node_positions
         )
         
     def reset_odometry_auto(self, pose: Pose2d):
@@ -362,12 +363,14 @@ class Drivetrain(Subsystem):
             n_states[3].angle.radians(), n_states[3].speed
         ])
 
-        pose = self.odometry.getPose()
+        pose = self.get_pose()
 
-        self.nt.putNumberArray("Estimated pose", [
+        self.nt.putNumberArray("Estimated pose",[
             pose.X(),
             pose.Y(),
             pose.rotation().radians()
         ])
+
+        self.nt.putNumber("rotation", math.degrees(self.gyro.get_robot_heading()))
 
         self.n_front_left.update_tables()

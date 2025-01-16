@@ -4,6 +4,7 @@ import phoenix6 as ctre
 import ntcore
 import wpilib
 import command
+import math
 import config
 import constants
 from robot_systems import Robot, Pneumatics, Sensors, LEDs, PowerDistribution, Field
@@ -12,6 +13,7 @@ import subsystem
 import utils
 from oi.OI import OI
 from pathplannerlib.auto import PathPlannerPath, FollowPathCommand, AutoBuilder
+from wpimath.geometry import Pose2d, Rotation2d
 
 
 class _Robot(wpilib.TimedRobot):
@@ -67,7 +69,7 @@ class _Robot(wpilib.TimedRobot):
                 self.nt.getTable("errors").putString("subsystem init", str(e))
                 raise e
 
-        ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
+        # ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
         self.log.complete("Robot initialized")
         ...
 
@@ -90,7 +92,7 @@ class _Robot(wpilib.TimedRobot):
                 raise e
             
 
-        # Robot.drivetrain.update_tables()
+        Robot.drivetrain.update_tables()
         ...
 
     # Initialize subsystems
@@ -99,10 +101,11 @@ class _Robot(wpilib.TimedRobot):
 
     def teleopInit(self):
         self.log.info("Teleop initialized")
-        # self.scheduler.schedule(commands2.SequentialCommandGroup(
-        #     command.DrivetrainZero(Robot.drivetrain),
-        #     command.DriveSwerveCustom(Robot.drivetrain)
-        #     ))
+        self.scheduler.schedule(commands2.SequentialCommandGroup(
+            command.DrivetrainZero(Robot.drivetrain),
+            command.DriveSwerveCustom(Robot.drivetrain)
+            ))
+        Robot.drivetrain.reset_odometry(Pose2d(constants.field_length/2, constants.field_width/2, math.radians(180)))
 
     def teleopPeriodic(self):
         pass

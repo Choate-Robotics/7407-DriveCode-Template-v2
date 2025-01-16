@@ -63,7 +63,7 @@ drivetrain_curve: float = 2.00000
 drivetrain_zero: radians = math.radians(180)
 
 TURN_CONFIG = TalonConfig(
-    5, 0, 0.01, 0, 0, brake_mode=True
+    8, 0, 0.025, 0, 0, brake_mode=True
 )
 
 MOVE_CONFIG = TalonConfig(

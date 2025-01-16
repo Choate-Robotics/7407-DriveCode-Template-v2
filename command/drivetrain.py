@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import wpilib
+import ntcore
 
 from robot_systems import Field
 from toolkit.command import SubsystemCommand
@@ -13,6 +14,8 @@ from wpimath.units import seconds
 from enum import Enum
 import logging
 import math
+from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.controller import HolonomicDriveController, PIDController, ProfiledPIDControllerRadians
 
 def deadzone(x, d=config.drivetrain_deadzone):
     if abs(x) < d:
@@ -122,3 +125,54 @@ class DrivetrainXMode(SubsystemCommand[Drivetrain]):
     
     def end(self, interrupted: bool) -> None:
         pass
+
+class DriveToPose(SubsystemCommand[Drivetrain]):
+    def __init__(self, subsystem: Drivetrain, pose: Pose2d = None):
+        super().__init__(subsystem)
+        self.subsystem = subsystem
+        self.pose = pose
+        self.current_pose: Pose2d
+
+        self.x_controller = PIDController(4, 0, 0, config.period)
+        self.y_controller = PIDController(4, 0, 0, config.period)
+        self.theta_controller = PIDController(5.5, 0, 0, config.period)
+
+        self.nt = ntcore.NetworkTableInstance.getDefault().getTable("drive to pose")
+
+
+    def initialize(self):
+        if self.pose == None:
+            self.pose = self.subsystem.get_pose()
+        
+        self.theta_controller.enableContinuousInput(0, math.radians(360))
+
+        self.x_controller.setTolerance(0.05)
+        self.y_controller.setTolerance(0.05)
+        self.theta_controller.setTolerance(math.radians(1))
+
+        self.x_controller.setSetpoint(self.pose.X())
+        self.y_controller.setSetpoint(self.pose.Y())
+        self.theta_controller.setSetpoint(self.pose.rotation().radians())
+
+    def execute(self):
+        self.current_pose = self.subsystem.get_pose()
+
+        vx = self.x_controller.calculate(self.current_pose.X())
+        vy = self.y_controller.calculate(self.current_pose.Y())
+        vtheta = self.theta_controller.calculate(self.current_pose.rotation().radians())
+
+        self.subsystem.set_driver_centric((vx, vy), vtheta)
+
+        self.nt.putNumber("goal x", self.pose.X())
+        self.nt.putNumber("goal y", self.pose.Y())
+        self.nt.putNumber("goal theta", self.pose.rotation().degrees())
+
+        self.nt.putNumber("current x", self.current_pose.X())
+        self.nt.putNumber("current y", self.current_pose.Y())
+        self.nt.putNumber("current theta", math.degrees(bounded_angle_diff(self.current_pose.rotation().radians(), 0)))
+
+    def isFinished(self) -> bool:
+        return self.x_controller.atSetpoint() and self.y_controller.atSetpoint() and self.theta_controller.atSetpoint()
+    
+    def end(self, interrupted):
+        self.subsystem.set_driver_centric((0, 0), 0)
