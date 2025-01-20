@@ -70,6 +70,7 @@ class _Robot(wpilib.TimedRobot):
                 raise e
 
         # ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
+        Robot.drivetrain.reset_odometry(Pose2d(constants.field_length/2, constants.field_width/2, math.radians(0)))
         self.log.complete("Robot initialized")
         ...
 
@@ -105,15 +106,20 @@ class _Robot(wpilib.TimedRobot):
             command.DrivetrainZero(Robot.drivetrain),
             command.DriveSwerveCustom(Robot.drivetrain)
             ))
-        Robot.drivetrain.reset_odometry(Pose2d(constants.field_length/2, constants.field_width/2, math.radians(180)))
+        
 
     def teleopPeriodic(self):
         pass
 
     def autonomousInit(self):
         self.log.info("Autonomous initialized")
-        # path = PathPlannerPath.fromPathFile("Example Path")
-        # self.scheduler.schedule(AutoBuilder.followPath(path))
+        path = PathPlannerPath.fromChoreoTrajectory("New Path", 0)
+        Robot.drivetrain.reset_odometry_auto(path.getStartingHolonomicPose())
+        self.scheduler.schedule(commands2.SequentialCommandGroup(
+            command.DrivetrainZero(Robot.drivetrain, math.radians(90)),
+            AutoBuilder.followPath(path),
+            commands2.InstantCommand(lambda: Robot.drivetrain.set_robot_centric((0, 0, 0)))
+            ))
 
     def autonomousPeriodic(self):
         pass

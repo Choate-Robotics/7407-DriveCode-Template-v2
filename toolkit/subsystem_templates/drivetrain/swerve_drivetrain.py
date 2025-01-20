@@ -87,7 +87,7 @@ class SwerveNode:
     # OVERRIDDEN FUNCTIONS
     def set_motor_angle(self, pos: radians):
         """
-        Set the angle of the swerve node. Must be overridden.
+        Set the angle of the swerve node.
 
         Args:
             pos (radians): angle of the swerve node in radians
@@ -98,7 +98,7 @@ class SwerveNode:
 
     def get_turn_motor_angle(self) -> radians:
         """
-        Get the current angle of the swerve node. Must be overridden. Must return radians.
+        Get the current angle of the swerve node. return: radians
         """
         return (
                 (self.m_turn.get_sensor_position() / constants.drivetrain_turn_gear_ratio)
@@ -108,13 +108,13 @@ class SwerveNode:
 
     def get_abs(self):
         '''
-        Gets the absolute encoder value. Must be overridden.
+        Gets the absolute encoder value.
         '''
         return self.encoder.get()
 
     def set_motor_velocity(self, vel: meters_per_second):
         """
-        Set the velocity of the swerve node. Must be overridden.
+        Set the velocity of the swerve node.
         Args:
             vel (meters_per_second): velocity of the swerve node in meters per second
         """
@@ -133,7 +133,7 @@ class SwerveNode:
 
     def get_motor_velocity(self) -> meters_per_second:
         """
-        Get the velocity of the swerve node. Must be overridden. Must return meters per second.
+        Get the velocity of the swerve node. Returns m/s
         """
         return (
                 self.m_move.get_sensor_velocity()
@@ -142,7 +142,7 @@ class SwerveNode:
 
     def get_drive_motor_traveled_distance(self) -> meters:
         """
-        Get the distance traveled by the drive motor. Must be overridden. Must return meters.
+        Get the distance traveled by the drive motor. Returns meters
         """
         sensor_position = self.m_move.get_sensor_position()
         return (
@@ -224,5 +224,5 @@ class SwerveNode:
     def update_tables(self):
         self.nt.putNumber(f"{self.name} target angle", bounded_angle_diff(self.get_target_angle(), 0))
         self.nt.putNumber(f"{self.name} current angle", bounded_angle_diff(self.get_turn_motor_angle(), 0))
-
+        self.nt.putNumber(f"{self.name} current speed", self.get_motor_velocity())
 

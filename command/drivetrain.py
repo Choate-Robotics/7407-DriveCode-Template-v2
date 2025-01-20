@@ -9,13 +9,14 @@ from toolkit.command import SubsystemCommand
 import config
 from subsystem import Drivetrain
 from toolkit.utils.toolkit_math import bounded_angle_diff
-from math import radians
 from wpimath.units import seconds
 from enum import Enum
 import logging
 import math
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.controller import HolonomicDriveController, PIDController, ProfiledPIDControllerRadians
+
+from units.SI import radians
 
 def deadzone(x, d=config.drivetrain_deadzone):
     if abs(x) < d:
@@ -87,13 +88,14 @@ class DrivetrainZero(SubsystemCommand[Drivetrain]):
     Zeroes drivetrain
     """
 
-    def __init__(self, subsystem: Drivetrain):
+    def __init__(self, subsystem: Drivetrain, angle: radians = config.drivetrain_zero):
         super().__init__(subsystem)
         self.subsystem = subsystem
+        self.angle = angle
 
     def initialize(self) -> None:
         print("ZEROING DRIVETRAIN")
-        self.subsystem.reset_gyro(config.drivetrain_zero)
+        self.subsystem.reset_gyro(self.angle)
         self.subsystem.n_front_left.zero()
         self.subsystem.n_front_right.zero()
         self.subsystem.n_back_left.zero()

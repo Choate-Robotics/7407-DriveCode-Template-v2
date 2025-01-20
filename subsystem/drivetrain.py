@@ -106,12 +106,13 @@ class Drivetrain(Subsystem):
         # setup autobuilder
         AutoBuilder.configure(
             self.get_pose,
-            self.reset_odometry,
+            self.reset_odometry_auto,
             self.get_speeds,
             lambda spds, ffs: self.set_robot_centric(spds),
             PPHolonomicDriveController(
                 constants.auto_translation_pid,
-                constants.auto_rotation_pid
+                constants.auto_rotation_pid,
+                config.period
             ),
             self.pp_config,
             self.should_flip_path,
@@ -313,13 +314,13 @@ class Drivetrain(Subsystem):
         """
         self.odometry.resetPosition(
             gyroAngle=pose.rotation(),
+            wheelPositions=self.node_positions,
             pose=pose,
-            modulePositions=self.node_positions,
         )
         self.odometry_estimator.resetPosition(
             gyroAngle=pose.rotation(),
+            wheelPositions=self.node_positions,
             pose=pose,
-            modulePositions=self.node_positions
         )
 
 
@@ -372,5 +373,10 @@ class Drivetrain(Subsystem):
         ])
 
         self.nt.putNumber("rotation", math.degrees(self.gyro.get_robot_heading()))
+        self.nt.putNumber("x accel", self.gyro.get_x_accel()*9.81)
+        
 
         self.n_front_left.update_tables()
+        self.n_front_right.update_tables()
+        self.n_back_left.update_tables()
+        self.n_back_right.update_tables()
