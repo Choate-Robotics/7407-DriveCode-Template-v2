@@ -20,7 +20,7 @@ track_length: meters = 18.25 * inches_to_meters #(left/right side)
 drivetrain_length: float = 20 #length of one side of the robot, placeholder
 bumper_thickness: float = 3.5
 drivetrain_length_with_bumpers = drivetrain_length + (2 * bumper_thickness)
-drivetrain_radius: float = 20.5 # TODO: measure this
+drivetrain_radius: float = math.sqrt(math.pow(track_length/2, 2) + math.pow(track_width/2, 2))
 
 drivetrain_move_motor_free_speed: rotations_per_minute = (
     6000 #6000 is the free speed RPM of the Kraken without FOC

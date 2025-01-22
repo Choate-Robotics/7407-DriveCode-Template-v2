@@ -7,6 +7,7 @@ from robot_systems import Field
 from toolkit.command import SubsystemCommand
 
 import config
+import constants
 from subsystem import Drivetrain
 from toolkit.utils.toolkit_math import bounded_angle_diff
 from wpimath.units import seconds
@@ -16,7 +17,7 @@ import math
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.controller import HolonomicDriveController, PIDController, ProfiledPIDControllerRadians
 
-from units.SI import radians
+from units.SI import radians, meters_to_inches
 
 def deadzone(x, d=config.drivetrain_deadzone):
     if abs(x) < d:
@@ -178,3 +179,39 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
     
     def end(self, interrupted):
         self.subsystem.set_driver_centric((0, 0), 0)
+
+class FindWheelRadius(SubsystemCommand[Drivetrain]):
+    def __init__(self, subsystem):
+        super().__init__(subsystem)
+        self.subsystem = subsystem
+        self.nt = ntcore.NetworkTableInstance.getDefault().getTable("Wheel Radius")
+
+    def initialize(self):
+        self.subsystem.n_front_left.m_move.set_sensor_position(0)
+        self.subsystem.n_front_right.m_move.set_sensor_position(0)
+        self.subsystem.n_back_left.m_move.set_sensor_position(0)
+        self.subsystem.n_back_right.m_move.set_sensor_position(0)
+        self.subsystem.gyro.reset_angle()
+        
+        self.subsystem.set_robot_centric((0, 0, math.radians(36)))
+
+    def execute(self):
+        pass
+
+    def isFinished(self):
+        return (self.subsystem.gyro._gyro.get_yaw().value >= 360) | (self.subsystem.gyro._gyro.get_yaw().value <= -360)
+    
+    def end(self, interrupted: bool):
+        self.subsystem.set_robot_centric((0, 0, 0))
+        rotations = [
+            abs(self.subsystem.n_front_left.m_move.get_sensor_position()),
+            abs(self.subsystem.n_front_right.m_move.get_sensor_position()),
+            abs(self.subsystem.n_back_left.m_move.get_sensor_position()),
+            abs(self.subsystem.n_back_right.m_move.get_sensor_position())
+        ]
+        average = sum(rotations)/4
+        if average > 0:
+            self.nt.putNumber("diameter",
+                        abs(constants.drivetrain_radius*self.subsystem.gyro._gyro.get_yaw().value/360/
+                            average*meters_to_inches*constants.drivetrain_wheel_gear_ratio*2)
+            )
