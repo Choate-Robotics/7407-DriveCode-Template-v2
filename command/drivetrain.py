@@ -142,7 +142,6 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
 
         self.nt = ntcore.NetworkTableInstance.getDefault().getTable("drive to pose")
 
-
     def initialize(self):
         if self.pose == None:
             self.pose = self.subsystem.get_pose()
@@ -215,3 +214,16 @@ class FindWheelRadius(SubsystemCommand[Drivetrain]):
                         abs(constants.drivetrain_radius*self.subsystem.gyro._gyro.get_yaw().value/360/
                             average*meters_to_inches*constants.drivetrain_wheel_gear_ratio*2)
             )
+
+class DriveToPoses(SubsystemCommand[Drivetrain]):
+
+    def __init__(self, subsystem: Drivetrain, poses: list[Pose2d] = None):
+        super().__init__(subsystem)
+        self.subsystem = subsystem
+        self.poses = poses
+        self.drive_to_poses = []
+
+    def init(self):
+        for pose in self.poses:
+            new_pose = DriveToPose(self.subsystem, pose)
+            self.drive_to_poses.append(new_pose)
