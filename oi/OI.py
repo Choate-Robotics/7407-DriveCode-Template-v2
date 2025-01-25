@@ -28,8 +28,12 @@ class OI:
             command.DrivetrainXMode(Robot.drivetrain)
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
         
-        Keymap.Drivetrain.DRIVE_TO_POSE.onTrue(
+        Keymap.Drivetrain.DRIVE_TO_RIGHT_POSE.onTrue(
             command.DriveToPose(Robot.drivetrain, Pose2d(5.31, 2.91, math.radians(120)))
+        ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
+
+        Keymap.Drivetrain.DRIVE_TO_LEFT_POSE.onTrue(
+            command.DriveToPose(Robot.drivetrain, Pose2d(2.13, 4.75, math.radians(45)))
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
 
         Keymap.Drivetrain.RESET_POSE.onTrue(

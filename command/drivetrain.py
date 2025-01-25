@@ -218,12 +218,4 @@ class FindWheelRadius(SubsystemCommand[Drivetrain]):
 class DriveToPoses(SubsystemCommand[Drivetrain]):
 
     def __init__(self, subsystem: Drivetrain, poses: list[Pose2d] = None):
-        super().__init__(subsystem)
-        self.subsystem = subsystem
-        self.poses = poses
-        self.drive_to_poses = []
-
-    def init(self):
-        for pose in self.poses:
-            new_pose = DriveToPose(self.subsystem, pose)
-            self.drive_to_poses.append(new_pose)
+        super().__init__(subsystem, subsystem.get_pose().nearest(poses))
