@@ -70,7 +70,7 @@ class _Robot(wpilib.TimedRobot):
                 raise e
 
         # ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
-        Robot.drivetrain.reset_odometry(Pose2d(constants.field_length/2, constants.field_width/2, math.radians(0)))
+        # Robot.drivetrain.reset_odometry(Pose2d(constants.field_length/2, constants.field_width/2, math.radians(0)))
         self.log.complete("Robot initialized")
         ...
 
@@ -92,8 +92,17 @@ class _Robot(wpilib.TimedRobot):
                 self.nt.getTable("errors").putString("command scheduler", str(e))
                 raise e
             
+        # Field.odometry.disable()
+        pose = Field.odometry.update()
+
+        self.nt.getTable("Odometry").putNumberArray("Estimated pose", [
+            pose.X(),
+            pose.Y(),
+            pose.rotation().radians()
+        ])
 
         Robot.drivetrain.update_tables()
+        Sensors.cam_controller.update_tables()
         ...
 
     # Initialize subsystems
@@ -113,13 +122,18 @@ class _Robot(wpilib.TimedRobot):
 
     def autonomousInit(self):
         self.log.info("Autonomous initialized")
-        path = PathPlannerPath.fromChoreoTrajectory("New Path", 0)
+        path = PathPlannerPath.fromChoreoTrajectory("test path")
         Robot.drivetrain.reset_odometry_auto(path.getStartingHolonomicPose())
         self.scheduler.schedule(commands2.SequentialCommandGroup(
             command.DrivetrainZero(Robot.drivetrain, math.radians(90)),
             AutoBuilder.followPath(path),
             commands2.InstantCommand(lambda: Robot.drivetrain.set_robot_centric((0, 0, 0)))
             ))
+
+        # self.scheduler.schedule(commands2.SequentialCommandGroup(
+        #     command.DrivetrainZero(Robot.drivetrain),
+        #     command.FindWheelRadius(Robot.drivetrain)
+        # ))
 
     def autonomousPeriodic(self):
         pass

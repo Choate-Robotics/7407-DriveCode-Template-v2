@@ -1,4 +1,7 @@
-from units.SI import radians
+from units.SI import (
+    radians,
+    meters
+)
 from wpilib import AnalogEncoder
 from toolkit.motors.ctre_motors import TalonConfig
 import math
@@ -25,6 +28,10 @@ LOG_FILE_LEVEL: int = 1
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 foc_active = False  #foc for TalonFX requires paid subscription
+
+# Cameras
+left_cam_name = "left_cam"
+right_cam_name = "right_cam"
 
 #Drivetrain
 gyro_id: int = 13
@@ -62,6 +69,9 @@ drivetrain_deadzone: float = 0.1
 drivetrain_curve: float = 2.00000
 drivetrain_zero: radians = math.radians(180)
 
+# odometry
+odometry_tag_distance_threshold: meters = 3
+
 TURN_CONFIG = TalonConfig(
     8, 0, 0.025, 0, 0, brake_mode=True
 )
@@ -78,4 +88,4 @@ MOVE_CONFIG = TalonConfig(
 )
 
 # TO CHANGE
-period = 0.02
+period = 0.03

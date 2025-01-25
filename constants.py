@@ -1,5 +1,5 @@
 from pathplannerlib.config import RobotConfig
-# fix config import soon
+from wpimath.geometry import Transform3d, Translation3d, Rotation3d
 import math
 from units.SI import (
     degrees_per_second__to__radians_per_second,
@@ -11,6 +11,16 @@ from units.SI import (
     meters_per_second_squared,
 )
 from pathplannerlib.config import PIDConstants
+
+# cameras
+robot_to_left_cam = Transform3d(
+    Translation3d(8.210*inches_to_meters, 9.764*inches_to_meters, 7.911*inches_to_meters),
+    Rotation3d(0, 0, math.radians(-20))
+)
+robot_to_right_cam = Transform3d(
+    Translation3d(8.210*inches_to_meters, -9.764*inches_to_meters, 7.911*inches_to_meters),
+    Rotation3d(0, 0, math.radians(20))
+)
 
 #drivetrain
 drivetrain_turn_gear_ratio: float = 150 / 7
@@ -27,7 +37,7 @@ drivetrain_move_motor_free_speed: rotations_per_minute = (
 )
 
 drivetrain_wheel_diameter: meters = (
-        4 * inches_to_meters
+        3.858 * inches_to_meters
 )  
  
 
@@ -47,7 +57,7 @@ drivetrain_move_gear_ratio_as_rotations_per_meter: float = (
 
 auto_config = RobotConfig.fromGUISettings()
 # to change AUTO PIDs
-auto_translation_pid = PIDConstants(5.0, 0.0, 0.0)
+auto_translation_pid = PIDConstants(8, 0.0, 0.1)
 auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
 
 

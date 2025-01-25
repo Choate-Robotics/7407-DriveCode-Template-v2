@@ -157,7 +157,7 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
         self.theta_controller.setSetpoint(self.pose.rotation().radians())
 
     def execute(self):
-        self.current_pose = self.subsystem.get_pose()
+        self.current_pose = self.subsystem.odometry_estimator.getEstimatedPosition()
 
         vx = self.x_controller.calculate(self.current_pose.X())
         vy = self.y_controller.calculate(self.current_pose.Y())
@@ -178,6 +178,11 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
     
     def end(self, interrupted):
         self.subsystem.set_driver_centric((0, 0), 0)
+
+class DriveToNearestPose(DriveToPose):
+    def __init__(self, subsystem: Drivetrain, poses: list[Pose2d]):
+        pose = subsystem.odometry_estimator.getEstimatedPosition()
+        super().__init__(subsystem, pose.nearest(poses))
 
 class FindWheelRadius(SubsystemCommand[Drivetrain]):
     def __init__(self, subsystem):
@@ -214,8 +219,3 @@ class FindWheelRadius(SubsystemCommand[Drivetrain]):
                         abs(constants.drivetrain_radius*self.subsystem.gyro._gyro.get_yaw().value/360/
                             average*meters_to_inches*constants.drivetrain_wheel_gear_ratio*2)
             )
-
-class DriveToPoses(SubsystemCommand[Drivetrain]):
-
-    def __init__(self, subsystem: Drivetrain, poses: list[Pose2d] = None):
-        super().__init__(subsystem, subsystem.get_pose().nearest(poses))

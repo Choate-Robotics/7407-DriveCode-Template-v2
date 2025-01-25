@@ -105,7 +105,7 @@ class Drivetrain(Subsystem):
 
         # setup autobuilder
         AutoBuilder.configure(
-            self.get_pose,
+            self.get_estimated_pose,
             self.reset_odometry_auto,
             self.get_speeds,
             lambda spds, ffs: self.set_robot_centric(spds),
@@ -234,8 +234,6 @@ class Drivetrain(Subsystem):
             self.node_positions
         )
 
-        
-
         # self.odometry_estimator.update(
         #     self.get_heading(),
         #     self.node_positions
@@ -249,6 +247,10 @@ class Drivetrain(Subsystem):
     def get_pose(self) -> Pose2d:
         pose = self.odometry.getPose()
         return Pose2d(pose.translation(), self.get_heading())
+    
+    def get_estimated_pose(self) -> Pose2d:
+        pose = self.odometry_estimator.getEstimatedPosition()
+        return pose
     
     def get_speeds(self) -> ChassisSpeeds:
         return self.chassis_speeds
