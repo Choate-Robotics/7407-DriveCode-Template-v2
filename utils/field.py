@@ -16,7 +16,10 @@ from units.SI import degrees_to_radians, inches_to_meters
 
 
 def post_pose(
-    table: ntcore.NetworkTableInstance, name: str, pose: Pose2d | Pose3d | Translation2d, debug=False
+    table: ntcore.NetworkTableInstance,
+    name: str,
+    pose: Pose2d | Pose3d | Translation2d,
+    debug=False,
 ) -> None:
     """Helper to post Pose2d, Pose3d, or Translation2d as an array to NetworkTables.
 
@@ -68,6 +71,8 @@ class Branch(StrEnum):
     J = "J"
     K = "K"
     L = "L"
+
+
 class ReefHeight(Enum):
     L4 = (72 * inches_to_meters, -90)
     L3 = (47.625 * inches_to_meters, -35)
@@ -91,7 +96,8 @@ class FieldConstants:
     // license that can be found in the LICENSE file at
     // the root directory of this project.
     """
-    debug=False
+
+    debug = False
     fieldLength = 690.876 * inches_to_meters
     fieldWidth = 317 * inches_to_meters
     startingLineX = 299.438 * inches_to_meters
@@ -140,24 +146,23 @@ class FieldConstants:
 
     class Reef:
         center = Translation2d(176.746 * inches_to_meters, 158.501 * inches_to_meters)
-        faceToZoneLine = 12 * inches_to_meters  # side of reef to inside of reef zone line
-        adjust_x = 30.738 * inches_to_meters
-        adjust_y = 6.469 * inches_to_meters
-        center = Translation2d(176.746 * inches_to_meters, 158.501 * inches_to_meters)
-        branchlabels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
-        currentbranch = 0
-        branch_positions_2d = {}
+        faceToZoneLine = (
+            12 * inches_to_meters
+        )  # side of reef to inside of reef zone line
+
         @staticmethod
         def calculate_pose_3d(center, face, level, adjust_x, adjust_y, is_right=True):
             """Helper to calculate 3D Pose for a given face and level."""
-            pose_direction = Pose2d(
-                center, Rotation2d.fromDegrees(180 + (60 * face))
-            )
+            pose_direction = Pose2d(center, Rotation2d.fromDegrees(180 + (60 * face)))
             adjust_y = adjust_y if is_right else -adjust_y
             return Pose3d(
                 Translation3d(
-                    pose_direction.transformBy(Transform2d(adjust_x, adjust_y, Rotation2d())).X(),
-                    pose_direction.transformBy(Transform2d(adjust_x, adjust_y, Rotation2d())).Y(),
+                    pose_direction.transformBy(
+                        Transform2d(adjust_x, adjust_y, Rotation2d())
+                    ).X(),
+                    pose_direction.transformBy(
+                        Transform2d(adjust_x, adjust_y, Rotation2d())
+                    ).Y(),
                     level.height,
                 ),
                 Rotation3d(
@@ -168,24 +173,23 @@ class FieldConstants:
             )
 
         class CenterFaces:
-
-            face0= Pose2d(
-                        144.003 * inches_to_meters,
-                        158.5 * inches_to_meters ,
-                        Rotation2d.fromDegrees(180),
-                    )
+            face0 = Pose2d(
+                144.003 * inches_to_meters,
+                158.5 * inches_to_meters,
+                Rotation2d.fromDegrees(180),
+            )
             face1 = Pose2d(
-                160.375 * inches_to_meters ,
+                160.375 * inches_to_meters,
                 130.144 * inches_to_meters,
                 Rotation2d.fromDegrees(-120),
             )
             face2 = Pose2d(
                 193.118 * inches_to_meters,
-                130.145 * inches_to_meters ,
+                130.145 * inches_to_meters,
                 Rotation2d.fromDegrees(-60),
             )
             face3 = Pose2d(
-                209.489 * inches_to_meters ,
+                209.489 * inches_to_meters,
                 158.502 * inches_to_meters,
                 Rotation2d.fromDegrees(0),
             )
@@ -203,13 +207,15 @@ class FieldConstants:
         class BranchPositions2d:
             adjust_x = 30.738 * inches_to_meters
             adjust_y = 6.469 * inches_to_meters
-            center = Translation2d(176.746 * inches_to_meters, 158.501 * inches_to_meters)
-            branchlabels=["A","B","C","D","E","F","G","H","I","J","K","L"]
+            center = Translation2d(
+                176.746 * inches_to_meters, 158.501 * inches_to_meters
+            )
+            branchlabels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
             currentbranch = 0
-            branch_positions_2d={}
+            branch_positions_2d = {}
             for face in range(6):
                 pose_direction = Pose2d(
-                   center, Rotation2d.fromDegrees(-180 + (60 * face))
+                    center, Rotation2d.fromDegrees(-180 + (60 * face))
                 )
                 branch_positions_2d[branchlabels[currentbranch]] = Pose2d(
                     pose_direction.transformBy(
@@ -220,7 +226,7 @@ class FieldConstants:
                     ).Y(),
                     pose_direction.rotation(),
                 )
-                branch_positions_2d[branchlabels[currentbranch+1]] = Pose2d(
+                branch_positions_2d[branchlabels[currentbranch + 1]] = Pose2d(
                     pose_direction.transformBy(
                         Transform2d(adjust_x, adjust_y, pose_direction.rotation())
                     ).X(),
@@ -229,25 +235,38 @@ class FieldConstants:
                     ).Y(),
                     pose_direction.rotation(),
                 )
-                currentbranch+=2
-
+                currentbranch += 2
 
         # Dynamically add properties to the class
         for label, pose in BranchPositions2d.branch_positions_2d.items():
             # Assign the property to the class
             setattr(BranchPositions2d, label, pose)
-        #Clean up the class
-        face=None
-        branch_positions_2d=None
-        currentbranch=None
+        # Clean up the class
+        face = None
+        branch_positions_2d = None
+        currentbranch = None
 
         class BranchScoringPositions:
             def __init__(self):
-
                 adjust_x = 30.738 * inches_to_meters
                 adjust_y = 6.469 * inches_to_meters
-                center = Translation2d(176.746 * inches_to_meters, 158.501 * inches_to_meters)
-                branchlabels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
+                center = Translation2d(
+                    176.746 * inches_to_meters, 158.501 * inches_to_meters
+                )
+                branchlabels = [
+                    "A",
+                    "B",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    "G",
+                    "H",
+                    "I",
+                    "J",
+                    "K",
+                    "L",
+                ]
                 currentbranch = 0
                 self.branch_positions_2d: Dict[str, Pose2d] = {}
                 for face in range(6):
@@ -274,18 +293,17 @@ class FieldConstants:
                     )
                     currentbranch += 2
 
-
-            def get_scoring_pose(self, branch: Branch, level: ReefHeight ) -> Pose3d:
-                    return Pose3d(
-                        self.branch_positions_2d[branch].X(),
-                        self.branch_positions_2d[branch].Y(),
-                        level.height,
-                        Rotation3d(
-                            0,
-                            level.pitch * degrees_to_radians,
-                            self.branch_positions_2d[branch].rotation().radians()
-                        )
-                    )
+            def get_scoring_pose(self, branch: Branch, level: ReefHeight) -> Pose3d:
+                return Pose3d(
+                    self.branch_positions_2d[branch].X(),
+                    self.branch_positions_2d[branch].Y(),
+                    level.height,
+                    Rotation3d(
+                        0,
+                        level.pitch * degrees_to_radians,
+                        self.branch_positions_2d[branch].rotation().radians(),
+                    ),
+                )
 
     def update_tables(self) -> None:
         # Initialize NetworkTables
@@ -333,7 +351,7 @@ class FieldConstants:
 
 
 if __name__ == "__main__":
-    FC=FieldConstants()
-    FC.debug=True
+    FC = FieldConstants()
+    FC.debug = True
     FC.update_tables()
-    print (FC.Reef.BranchScoringPositions().get_scoring_pose(Branch.L, ReefHeight.L4))
+    print(FC.Reef.BranchScoringPositions().get_scoring_pose(Branch.L, ReefHeight.L4))
