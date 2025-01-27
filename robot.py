@@ -71,6 +71,7 @@ class _Robot(wpilib.TimedRobot):
 
         # ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
         # Robot.drivetrain.reset_odometry(Pose2d(constants.field_length/2, constants.field_width/2, math.radians(0)))
+        Field.field_constants.update_tables()
         self.log.complete("Robot initialized")
         ...
 

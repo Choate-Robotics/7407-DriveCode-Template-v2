@@ -241,7 +241,7 @@ class Drivetrain(Subsystem):
 
         # self.chassis_speeds = self.kinematics.toChassisSpeeds(*self.node_states)
 
-    def should_flip_path(self):
+    def should_flip_path(self)-> bool:
         return DriverStation.getAlliance() == DriverStation.Alliance.kRed
     
     def get_pose(self) -> Pose2d:

@@ -3,6 +3,7 @@ import sensors
 import wpilib
 import config
 import constants
+from utils import FieldConstants
 
 
 class Robot:
@@ -29,3 +30,4 @@ class PowerDistribution:
 
 class Field:
     odometry = sensors.FieldOdometry(Robot.drivetrain, Sensors.cam_controller, constants.field_width, constants.field_length)
+    field_constants = FieldConstants()
