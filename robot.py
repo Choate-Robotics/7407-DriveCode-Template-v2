@@ -1,4 +1,5 @@
 import commands2
+import wpilib.drive
 from toolkit.subsystem import Subsystem
 import phoenix6 as ctre
 import ntcore
@@ -13,7 +14,8 @@ import subsystem
 import utils
 from oi.OI import OI
 from pathplannerlib.auto import PathPlannerPath, FollowPathCommand, AutoBuilder
-from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.geometry import Pose2d, Rotation2d, Transform2d
+from utils import FieldConstants
 
 
 class _Robot(wpilib.TimedRobot):
@@ -69,8 +71,7 @@ class _Robot(wpilib.TimedRobot):
                 self.nt.getTable("errors").putString("subsystem init", str(e))
                 raise e
 
-        # ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
-        # Robot.drivetrain.reset_odometry(Pose2d(constants.field_length/2, constants.field_width/2, math.radians(0)))
+        ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
         Field.field_constants.update_tables()
         self.log.complete("Robot initialized")
         ...
@@ -123,10 +124,11 @@ class _Robot(wpilib.TimedRobot):
 
     def autonomousInit(self):
         self.log.info("Autonomous initialized")
-        path = PathPlannerPath.fromChoreoTrajectory("test path")
-        Robot.drivetrain.reset_odometry_auto(path.getStartingHolonomicPose())
+        path = PathPlannerPath.fromChoreoTrajectory("Four L4 Left")
+        starting_pose = FieldConstants.get_red_pose(path.getStartingHolonomicPose()) if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed else path.getStartingHolonomicPose()
+        Robot.drivetrain.reset_odometry_auto(starting_pose)
         self.scheduler.schedule(commands2.SequentialCommandGroup(
-            command.DrivetrainZero(Robot.drivetrain, math.radians(90)),
+            command.DrivetrainZero(Robot.drivetrain, starting_pose.rotation().radians()),
             AutoBuilder.followPath(path),
             commands2.InstantCommand(lambda: Robot.drivetrain.set_robot_centric((0, 0, 0)))
             ))

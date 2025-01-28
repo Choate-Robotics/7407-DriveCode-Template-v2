@@ -70,7 +70,7 @@ drivetrain_curve: float = 2.00000
 drivetrain_zero: radians = math.radians(180)
 
 # odometry
-odometry_tag_distance_threshold: meters = 3
+odometry_tag_distance_threshold: meters = 2.5
 
 TURN_CONFIG = TalonConfig(
     8, 0, 0.025, 0, 0, brake_mode=True

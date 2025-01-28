@@ -38,7 +38,7 @@ def weighted_pose_average(
 
 class FieldOdometry:
     def __init__(
-            self, drivetrain: Drivetrain, cam_controller: PhotonController, field_width: float, field_length: float
+            self, drivetrain: Drivetrain, cam_controller: PhotonController, field_width: float = constants.field_width, field_length: float = constants.field_length
     ):
         self.drivetrain: Drivetrain = drivetrain
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Odometry")
@@ -90,7 +90,7 @@ class FieldOdometry:
         primary_id = tag_ids[0]
         distance_to_target = tags[0].bestCameraToTarget.translation().toTranslation2d().distance(Translation2d(0, 0))
         
-        std_dev = 1
+        std_dev = 2
         self.nt.putNumber("Distance to target", distance_to_target)
 
         # if not self.pose_within_field(pose):
