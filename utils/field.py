@@ -1,7 +1,7 @@
 from enum import Enum, StrEnum
 from typing import Dict
 import ntcore
-from constants import reef_scoring_distance
+import config
 import constants
 
 from ntcore import NetworkTable
@@ -211,7 +211,7 @@ class FieldConstants:
 
         class BranchScoringPositions2d:
             adjust_x = (
-                30.738 * inches_to_meters + 0.051 + reef_scoring_distance
+                30.738 * inches_to_meters + 0.051 + constants.reef_scoring_distance
             )  # the extra is to push to the edge of the reef.
             adjust_y = 6.469 * inches_to_meters
             center = Translation2d(
@@ -220,6 +220,8 @@ class FieldConstants:
             branchlabels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
             currentbranch = 0
             branch_positions_2d = {}
+            left_poses: list[Pose2d] = []
+            right_poses: list[Pose2d] = []
             for face in range(6):
                 pose_direction = Pose2d(
                     center, Rotation2d.fromDegrees(-180 + (60 * face))
@@ -231,8 +233,9 @@ class FieldConstants:
                     pose_direction.transformBy(
                         Transform2d(adjust_x, -adjust_y, pose_direction.rotation())
                     ).Y(),
-                    pose_direction.rotation(),
+                    pose_direction.rotation().rotateBy(Rotation2d(180*degrees_to_radians)),
                 )
+                left_poses.append(branch_positions_2d[branchlabels[currentbranch]])
                 branch_positions_2d[branchlabels[currentbranch + 1]] = Pose2d(
                     pose_direction.transformBy(
                         Transform2d(adjust_x, adjust_y, pose_direction.rotation())
@@ -240,8 +243,9 @@ class FieldConstants:
                     pose_direction.transformBy(
                         Transform2d(adjust_x, adjust_y, pose_direction.rotation())
                     ).Y(),
-                    pose_direction.rotation(),
+                    pose_direction.rotation().rotateBy(Rotation2d(180*degrees_to_radians)),
                 )
+                right_poses.append(branch_positions_2d[branchlabels[currentbranch + 1]])
                 currentbranch += 2
 
         # Dynamically add properties to the class
@@ -249,9 +253,9 @@ class FieldConstants:
             # Assign the property to the class
             setattr(BranchScoringPositions2d, label, pose)
         # Clean up the class
-        face = None
-        branch_positions_2d = None
-        currentbranch = None
+        BranchScoringPositions2d.face = None
+        BranchScoringPositions2d.branch_positions_2d = None
+        BranchScoringPositions2d.currentbranch = None
 
         class BranchScoringPositions:
             def __init__(self):
