@@ -1,9 +1,11 @@
 from enum import Enum, StrEnum
 from typing import Dict
 import ntcore
+import config
 import constants
+
 from ntcore import NetworkTable
-from wpilib import DriverStation
+from wpilib import DriverStation  # noqa
 from wpimath.geometry import (
     Pose2d,
     Pose3d,
@@ -22,7 +24,7 @@ def post_pose(
     name: str,
     pose: Pose2d | Pose3d | Translation2d,
     debug=False,
-    red=False
+    red=False,
 ) -> None:
     """Helper to post Pose2d, Pose3d, or Translation2d as an array to NetworkTables.
 
@@ -70,7 +72,7 @@ class Branch(StrEnum):
     F = "F"
     G = "G"
     H = "H"
-    I = "I"
+    I = "I"  # noqa
     J = "J"
     K = "K"
     L = "L"
@@ -207,8 +209,10 @@ class FieldConstants:
                 Rotation2d.fromDegrees(120),
             )
 
-        class BranchPositions2d:
-            adjust_x = 30.738 * inches_to_meters
+        class BranchScoringPositions2d:
+            adjust_x = (
+                30.738 * inches_to_meters + 0.051 + constants.reef_scoring_distance
+            )  # the extra is to push to the edge of the reef.
             adjust_y = 6.469 * inches_to_meters
             center = Translation2d(
                 176.746 * inches_to_meters, 158.501 * inches_to_meters
@@ -216,6 +220,8 @@ class FieldConstants:
             branchlabels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
             currentbranch = 0
             branch_positions_2d = {}
+            left_poses: list[Pose2d] = []
+            right_poses: list[Pose2d] = []
             for face in range(6):
                 pose_direction = Pose2d(
                     center, Rotation2d.fromDegrees(-180 + (60 * face))
@@ -227,8 +233,9 @@ class FieldConstants:
                     pose_direction.transformBy(
                         Transform2d(adjust_x, -adjust_y, pose_direction.rotation())
                     ).Y(),
-                    pose_direction.rotation(),
+                    pose_direction.rotation().rotateBy(Rotation2d(180*degrees_to_radians)),
                 )
+                left_poses.append(branch_positions_2d[branchlabels[currentbranch]])
                 branch_positions_2d[branchlabels[currentbranch + 1]] = Pose2d(
                     pose_direction.transformBy(
                         Transform2d(adjust_x, adjust_y, pose_direction.rotation())
@@ -236,18 +243,19 @@ class FieldConstants:
                     pose_direction.transformBy(
                         Transform2d(adjust_x, adjust_y, pose_direction.rotation())
                     ).Y(),
-                    pose_direction.rotation(),
+                    pose_direction.rotation().rotateBy(Rotation2d(180*degrees_to_radians)),
                 )
+                right_poses.append(branch_positions_2d[branchlabels[currentbranch + 1]])
                 currentbranch += 2
 
         # Dynamically add properties to the class
-        for label, pose in BranchPositions2d.branch_positions_2d.items():
+        for label, pose in BranchScoringPositions2d.branch_positions_2d.items():
             # Assign the property to the class
-            setattr(BranchPositions2d, label, pose)
+            setattr(BranchScoringPositions2d, label, pose)
         # Clean up the class
-        face = None
-        branch_positions_2d = None
-        currentbranch = None
+        BranchScoringPositions2d.face = None
+        BranchScoringPositions2d.branch_positions_2d = None
+        BranchScoringPositions2d.currentbranch = None
 
         class BranchScoringPositions:
             def __init__(self):
@@ -357,23 +365,26 @@ class FieldConstants:
         if isinstance(pose, Pose2d):
             return Pose2d(
                 Translation2d(
-                    constants.field_length - pose.X(), 
-                    constants.field_width - pose.Y()
-                    ),
-                pose.rotation().rotateBy(Rotation2d(180*degrees_to_radians))
-                )
+                    constants.field_length - pose.X(), constants.field_width - pose.Y()
+                ),
+                pose.rotation().rotateBy(Rotation2d(180 * degrees_to_radians)),
+            )
         elif isinstance(pose, Pose3d):
             return Pose3d(
                 Translation3d(
-                    constants.field_length - pose.X(), 
+                    constants.field_length - pose.X(),
                     constants.field_width - pose.Y(),
-                    pose.Z()
+                    pose.Z(),
                 ),
-                pose.rotation().rotateBy(Rotation3d(0, 0, 180*degrees_to_radians))
+                pose.rotation().rotateBy(Rotation3d(0, 0, 180 * degrees_to_radians)),
             )
+
 
 if __name__ == "__main__":
     FC = FieldConstants()
     FC.debug = True
     FC.update_tables()
     print(FC.Reef.BranchScoringPositions().get_scoring_pose(Branch.L, ReefHeight.L4))
+    print(
+        f"April Tag closest driver's station x:{144*inches_to_meters}, y:{158*inches_to_meters}"
+    )
