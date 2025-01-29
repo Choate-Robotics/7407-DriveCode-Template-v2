@@ -10,7 +10,6 @@ from units.SI import (
     degrees_to_radians,
     meters_per_second_squared,
 )
-from pathplannerlib.config import PIDConstants
 
 # cameras
 robot_to_left_cam = Transform3d(
@@ -58,9 +57,6 @@ drivetrain_move_gear_ratio_as_rotations_per_meter: float = (
 ) * drivetrain_wheel_gear_ratio
 
 auto_config = RobotConfig.fromGUISettings()
-# to change AUTO PIDs
-auto_translation_pid = PIDConstants(8, 0.0, 0.1)
-auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
 
 
 # field

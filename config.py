@@ -5,6 +5,7 @@ from units.SI import (
 from wpilib import AnalogEncoder
 from toolkit.motors.ctre_motors import TalonConfig
 import math
+from pathplannerlib.config import PIDConstants
 
 
 DEBUG_MODE: bool = True
@@ -86,6 +87,9 @@ MOVE_CONFIG = TalonConfig(
     current_limit=50,
     kV=0.12
 )
+
+auto_translation_pid = PIDConstants(8, 0.0, 0.1)
+auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
 
 # TO CHANGE
 period = 0.03

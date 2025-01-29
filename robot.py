@@ -31,8 +31,6 @@ class _Robot(wpilib.TimedRobot):
         # Initialize Operator Interface
         if config.DEBUG_MODE == True:
             self.log.setup("WARNING: DEBUG MODE IS ENABLED")
-        OI.init()
-        OI.map_controls()
         period = 0.03
         self.scheduler.setPeriod(period)
         self.log.info(f"Scheduler period set to {period} seconds")
@@ -73,6 +71,10 @@ class _Robot(wpilib.TimedRobot):
 
         ctre.hardware.ParentDevice.optimize_bus_utilization_for_all()
         Field.field_constants.update_tables()
+
+        OI.init()
+        OI.map_controls()
+        
         self.log.complete("Robot initialized")
         ...
 

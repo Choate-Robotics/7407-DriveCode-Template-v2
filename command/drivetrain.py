@@ -181,7 +181,7 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
 
 class DriveToNearestPose(DriveToPose):
     def __init__(self, subsystem: Drivetrain, poses: list[Pose2d]):
-        pose = subsystem.odometry_estimator.getEstimatedPosition()
+        pose = subsystem.get_estimated_pose()
         super().__init__(subsystem, pose.nearest(poses))
 
 class FindWheelRadius(SubsystemCommand[Drivetrain]):

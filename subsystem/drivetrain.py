@@ -110,8 +110,8 @@ class Drivetrain(Subsystem):
             self.get_speeds,
             lambda spds, ffs: self.set_robot_centric(spds),
             PPHolonomicDriveController(
-                constants.auto_translation_pid,
-                constants.auto_rotation_pid,
+                config.auto_translation_pid,
+                config.auto_rotation_pid,
                 config.period
             ),
             self.pp_config,
