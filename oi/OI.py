@@ -3,7 +3,7 @@ from oi.keymap import Keymap
 import command
 import constants
 import math
-from robot_systems import Robot
+from robot_systems import Robot, Field
 from commands2 import InstantCommand
 from wpimath.geometry import Pose2d
 
@@ -29,7 +29,11 @@ class OI:
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
         
         Keymap.Drivetrain.DRIVE_TO_RIGHT_POSE.onTrue(
-            command.DriveToPose(Robot.drivetrain, Pose2d(14.4, 4.15, math.radians(180)))
+            command.DriveToNearestPose(Robot.drivetrain, Field.field_constants.Reef.BranchScoringPositions2d.right_poses)
+        ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
+
+        Keymap.Drivetrain.DRIVE_TO_LEFT_POSE.onTrue(
+            command.DriveToNearestPose(Robot.drivetrain, Field.field_constants.Reef.BranchScoringPositions2d.right_poses)
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
 
         Keymap.Drivetrain.RESET_POSE.onTrue(
