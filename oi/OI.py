@@ -29,11 +29,11 @@ class OI:
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
         
         Keymap.Drivetrain.DRIVE_TO_RIGHT_POSE.onTrue(
-            command.DriveToNearestPose(Robot.drivetrain, Field.field_constants.Reef.BranchScoringPositions2d.right_poses)
+            command.DriveToNearestPose(Robot.drivetrain, Field.branch.get_right_branches())
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
 
         Keymap.Drivetrain.DRIVE_TO_LEFT_POSE.onTrue(
-            command.DriveToNearestPose(Robot.drivetrain, Field.field_constants.Reef.BranchScoringPositions2d.right_poses)
+            command.DriveToNearestPose(Robot.drivetrain, Field.branch.get_left_branches())
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
 
         Keymap.Drivetrain.RESET_POSE.onTrue(
