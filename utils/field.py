@@ -37,7 +37,7 @@ class Branch(StrEnum):
         branches = list(self.__class__)  # Get all enum members
         index = len(branches)  # Find the index of the current face
         adjust_x = (
-            30.738 * inches_to_meters + 0.051 + reef_scoring_distance * inches_to_meters
+            30.738 * inches_to_meters + 0.051 + reef_scoring_distance
         )  # the extra is to push to the edge of the reef.
 
         adjust_y = 6.469 * inches_to_meters
@@ -65,12 +65,12 @@ class Branch(StrEnum):
         )
 
     @staticmethod
-    def get_right_branches() -> list:
-        return [Branch.B, Branch.D, Branch.F, Branch.H, Branch.J, Branch.L]
+    def get_right_branches() -> list[Pose2d]:
+        return [Branch.B.scoring_pose, Branch.D.scoring_pose, Branch.F.scoring_pose, Branch.H.scoring_pose, Branch.J.scoring_pose, Branch.L.scoring_pose]
 
     @staticmethod
-    def get_left_branches() -> list:
-        return [Branch.A, Branch.C, Branch.E, Branch.G, Branch.I, Branch.K]
+    def get_left_branches() -> list[Pose2d]:
+        return [Branch.A.scoring_pose, Branch.C.scoring_pose, Branch.E.scoring_pose, Branch.G.scoring_pose, Branch.I.scoring_pose, Branch.K.scoring_pose]
 
 
 class ReefFace(Enum):
@@ -81,7 +81,7 @@ class ReefFace(Enum):
     Face5 = ("Face5", Branch.I, Branch.J)
     Face6 = ("Face6", Branch.K, Branch.L)
 
-    def __init__(self, label, left, right):
+    def __init__(self, label, left: Branch, right: Branch):
         self.label = label
         self.left = left
         self.right = right
@@ -239,7 +239,7 @@ class NT_Updater:
             else:
                 table.putValue(name, value)
 
-    def process_class(self, table, prefix, cls, debug=False):
+    def process_class(self, table: NetworkTable, prefix, cls, debug=False):
         """Recursively process a class and its nested classes."""
         # cls.__init__(cls)
         for attr_name, attr_value in vars(cls).items():
@@ -350,7 +350,7 @@ def flip_poses():
     apply_rotation_to_pose2d(Reef)
 
 
-def update_table(nt_reporter, debug=False):
+def update_table(nt_reporter: NT_Updater, debug=False):
     # = NT_Updater(table_name)
     nt_reporter.update_table(Branch, "Branch", debug)
     nt_reporter.update_table(ReefFace, "ReefFace", debug)
