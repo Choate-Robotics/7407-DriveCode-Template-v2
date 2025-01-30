@@ -16,6 +16,8 @@ from oi.OI import OI
 from pathplannerlib.auto import PathPlannerPath, FollowPathCommand, AutoBuilder
 from wpimath.geometry import Pose2d, Rotation2d, Transform2d
 from utils import FieldConstants
+from wpilib import DriverStation
+
 
 
 class _Robot(wpilib.TimedRobot):
@@ -25,6 +27,7 @@ class _Robot(wpilib.TimedRobot):
         self.log = utils.LocalLogger("Robot")
         self.nt = ntcore.NetworkTableInstance.getDefault()
         self.scheduler = commands2.CommandScheduler.getInstance()
+        self.color = DriverStation.Alliance.kRed
 
     def robotInit(self):
         self.log._robot_log_setup()
@@ -79,6 +82,22 @@ class _Robot(wpilib.TimedRobot):
         ...
 
     def robotPeriodic(self):
+
+        fms_table = ntcore.NetworkTableInstance.getDefault().getTable("FMSInfo")
+        is_red = fms_table.getBoolean("IsRedAlliance", True)
+        if is_red:
+            color_now = DriverStation.Alliance.kRed
+        else:
+            color_now = DriverStation.Alliance.kBlue
+
+        # current_alliance = DriverStation.getAlliance()
+        if not color_now == self.color:
+            Field.flip_poses()
+            self.color = color_now
+            Field.update_field_table()
+        if self.isSimulation():
+            wpilib.DriverStation.silenceJoystickConnectionWarning(True)
+
         if self.isSimulation():
             wpilib.DriverStation.silenceJoystickConnectionWarning(True)
 
