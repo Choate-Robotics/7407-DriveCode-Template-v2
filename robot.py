@@ -34,7 +34,7 @@ class _Robot(wpilib.TimedRobot):
         # Initialize Operator Interface
         if config.DEBUG_MODE == True:
             self.log.setup("WARNING: DEBUG MODE IS ENABLED")
-        period = 0.03
+        period = config.period
         self.scheduler.setPeriod(period)
         self.log.info(f"Scheduler period set to {period} seconds")
 
@@ -94,6 +94,7 @@ class _Robot(wpilib.TimedRobot):
             Field.flip_poses()
             self.color = color_now
             Field.update_field_table()
+            OI.map_controls()
         if self.isSimulation():
             wpilib.DriverStation.silenceJoystickConnectionWarning(True)
 

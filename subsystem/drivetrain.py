@@ -80,7 +80,7 @@ class Drivetrain(Subsystem):
     start_pose: Pose2d = Pose2d(0, 0, 0)  # Starting pose of the robot from wpilib Pose (x, y, rotation)
     start_angle: degrees = 0
     gyro_start_angle: radians = 0
-    gyro_offset: degrees = 0
+    gyro_offset: radians = math.radians(0)
     ready_to_shoot: bool = False
 
     def __init__(self):
@@ -196,7 +196,7 @@ class Drivetrain(Subsystem):
         """
         # vel = rotate_vector(vel[0], vel[1], -self.gyro.get_robot_heading())
 
-        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vel[0], vel[1], angular_vel, self.get_heading())
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vel[0], vel[1], angular_vel, self.get_heading().rotateBy(Rotation2d(math.pi)))
 
         self.set_robot_centric(speeds)
 
@@ -287,7 +287,7 @@ class Drivetrain(Subsystem):
         """
         if TimedRobot.isSimulation():
             return Rotation2d(self._sim_omega + self.gyro_offset)
-        return Rotation2d(self.gyro.get_robot_heading() + self.gyro_offset)
+        return Rotation2d((self.gyro.get_robot_heading() + self.gyro_offset))
 
     def reset_odometry(self, pose: Pose2d) -> None:
         """
@@ -374,9 +374,7 @@ class Drivetrain(Subsystem):
             pose.rotation().radians()
         ])
 
-        self.nt.putNumber("rotation", math.degrees(self.gyro.get_robot_heading()))
-        self.nt.putNumber("x accel", self.gyro.get_x_accel()*9.81)
-        
+        self.nt.putNumber("rotation", self.get_heading().degrees())
 
         self.n_front_left.update_tables()
         self.n_front_right.update_tables()

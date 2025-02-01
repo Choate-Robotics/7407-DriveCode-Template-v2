@@ -1,3 +1,4 @@
+import command.drivetrain
 from utils import LocalLogger
 from oi.keymap import Keymap
 import command
@@ -29,13 +30,13 @@ class OI:
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
         
         Keymap.Drivetrain.DRIVE_TO_RIGHT_POSE.onTrue(
-            command.DriveToNearestPose(Robot.drivetrain, Field.branch.get_right_branches())
+            command.DriveToPose(Robot.drivetrain, Field.branch.get_right_branches())
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
 
         Keymap.Drivetrain.DRIVE_TO_LEFT_POSE.onTrue(
-            command.DriveToNearestPose(Robot.drivetrain, Field.branch.get_left_branches())
+            command.DriveToPose(Robot.drivetrain, Field.branch.get_left_branches())
         ).onFalse(command.DriveSwerveCustom(Robot.drivetrain))
 
         Keymap.Drivetrain.RESET_POSE.onTrue(
-            InstantCommand(lambda: Robot.drivetrain.reset_odometry(Pose2d(constants.field_length/2, constants.field_width/2, math.radians(180))))
+            InstantCommand(lambda: print(Field.branch.get_left_branches()))
         )

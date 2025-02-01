@@ -130,10 +130,10 @@ class DrivetrainXMode(SubsystemCommand[Drivetrain]):
         pass
 
 class DriveToPose(SubsystemCommand[Drivetrain]):
-    def __init__(self, subsystem: Drivetrain, pose: Pose2d = None):
+    def __init__(self, subsystem: Drivetrain, poses: list[Pose2d] = None):
         super().__init__(subsystem)
         self.subsystem = subsystem
-        self.pose = pose
+        self.poses = poses
         self.current_pose: Pose2d
 
         self.x_controller = PIDController(4, 0, 0, config.period)
@@ -143,8 +143,8 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
         self.nt = ntcore.NetworkTableInstance.getDefault().getTable("drive to pose")
 
     def initialize(self):
-        if self.pose == None:
-            self.pose = self.subsystem.get_pose()
+        self.current_pose = self.subsystem.get_estimated_pose()
+        pose = self.current_pose.nearest(self.poses)
         
         self.theta_controller.enableContinuousInput(0, math.radians(360))
 
@@ -152,22 +152,22 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
         self.y_controller.setTolerance(0.05)
         self.theta_controller.setTolerance(math.radians(1))
 
-        self.x_controller.setSetpoint(self.pose.X())
-        self.y_controller.setSetpoint(self.pose.Y())
-        self.theta_controller.setSetpoint(self.pose.rotation().radians())
+        self.x_controller.setSetpoint(pose.X())
+        self.y_controller.setSetpoint(pose.Y())
+        self.theta_controller.setSetpoint(pose.rotation().radians())
 
     def execute(self):
-        self.current_pose = self.subsystem.odometry_estimator.getEstimatedPosition()
+        self.current_pose = self.subsystem.get_estimated_pose()
 
         vx = self.x_controller.calculate(self.current_pose.X())
         vy = self.y_controller.calculate(self.current_pose.Y())
         vtheta = self.theta_controller.calculate(self.current_pose.rotation().radians())
 
-        self.subsystem.set_driver_centric((vx, vy), vtheta)
+        self.subsystem.set_driver_centric((-vx, -vy), vtheta)
 
-        self.nt.putNumber("goal x", self.pose.X())
-        self.nt.putNumber("goal y", self.pose.Y())
-        self.nt.putNumber("goal theta", self.pose.rotation().degrees())
+        self.nt.putNumber("goal x", self.x_controller.getSetpoint())
+        self.nt.putNumber("goal y", self.y_controller.getSetpoint())
+        self.nt.putNumber("goal theta", math.degrees(self.theta_controller.getSetpoint()))
 
         self.nt.putNumber("current x", self.current_pose.X())
         self.nt.putNumber("current y", self.current_pose.Y())
@@ -178,11 +178,6 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
     
     def end(self, interrupted):
         self.subsystem.set_driver_centric((0, 0), 0)
-
-class DriveToNearestPose(DriveToPose):
-    def __init__(self, subsystem: Drivetrain, poses: list[Pose2d]):
-        pose = subsystem.get_estimated_pose()
-        super().__init__(subsystem, pose.nearest(poses))
 
 class FindWheelRadius(SubsystemCommand[Drivetrain]):
     def __init__(self, subsystem):

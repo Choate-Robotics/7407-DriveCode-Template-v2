@@ -112,7 +112,7 @@ class FieldOdometry:
                 std_dev = 0.5
         
 
-        self.drivetrain.odometry_estimator.addVisionMeasurement(pose, vision_time, [std_dev, std_dev, 50])
+        self.drivetrain.odometry_estimator.addVisionMeasurement(Pose2d(pose.X(), pose.Y(), self.drivetrain.get_heading()), vision_time, [std_dev, std_dev, 50])
 
     def getPose(self) -> Pose2d:
         """

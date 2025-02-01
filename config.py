@@ -68,7 +68,7 @@ back_right_move_inverted = False
 driver_centric: bool = True
 drivetrain_deadzone: float = 0.1
 drivetrain_curve: float = 2.00000
-drivetrain_zero: radians = math.radians(180)
+drivetrain_zero: radians = math.radians(0)
 
 # odometry
 odometry_tag_distance_threshold: meters = 2.5
@@ -81,11 +81,11 @@ MOVE_CONFIG = TalonConfig(
     0.11,
     0,
     0,
-    0.25,
-    0.01,
+    kF=0.25,
+    kA=0.15,
+    kV=0.12,
     brake_mode=True,
     current_limit=50,
-    kV=0.12
 )
 
 auto_translation_pid = PIDConstants(8, 0.0, 0.1)
