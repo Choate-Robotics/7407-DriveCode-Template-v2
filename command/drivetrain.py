@@ -16,6 +16,7 @@ import logging
 import math
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.controller import HolonomicDriveController, PIDController, ProfiledPIDControllerRadians
+from wpilib import DriverStation
 
 from units.SI import radians, meters_to_inches
 
@@ -96,6 +97,8 @@ class DrivetrainZero(SubsystemCommand[Drivetrain]):
 
     def initialize(self) -> None:
         print("ZEROING DRIVETRAIN")
+        if (self.angle == config.drivetrain_zero) and (DriverStation.getAlliance() == DriverStation.Alliance.kRed):
+            self.angle = bounded_angle_diff((self.angle + math.pi), 0)
         self.subsystem.reset_gyro(self.angle)
         self.subsystem.n_front_left.zero()
         self.subsystem.n_front_right.zero()
@@ -163,7 +166,11 @@ class DriveToPose(SubsystemCommand[Drivetrain]):
         vy = self.y_controller.calculate(self.current_pose.Y())
         vtheta = self.theta_controller.calculate(self.current_pose.rotation().radians())
 
-        self.subsystem.set_driver_centric((-vx, -vy), vtheta)
+        if (DriverStation.getAlliance() == DriverStation.Alliance.kRed):
+            vx *= -1
+            vy *= -1
+
+        self.subsystem.set_driver_centric((vx, vy), vtheta)
 
         self.nt.putNumber("goal x", self.x_controller.getSetpoint())
         self.nt.putNumber("goal y", self.y_controller.getSetpoint())

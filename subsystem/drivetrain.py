@@ -196,7 +196,11 @@ class Drivetrain(Subsystem):
         """
         # vel = rotate_vector(vel[0], vel[1], -self.gyro.get_robot_heading())
 
-        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vel[0], vel[1], angular_vel, self.get_heading().rotateBy(Rotation2d(math.pi)))
+        heading = self.get_heading()
+        if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
+            heading = heading.rotateBy(Rotation2d(math.pi))
+
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vel[0], vel[1], angular_vel, heading)
 
         self.set_robot_centric(speeds)
 

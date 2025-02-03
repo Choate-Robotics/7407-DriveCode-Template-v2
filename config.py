@@ -68,7 +68,7 @@ back_right_move_inverted = False
 driver_centric: bool = True
 drivetrain_deadzone: float = 0.1
 drivetrain_curve: float = 2.00000
-drivetrain_zero: radians = math.radians(0)
+drivetrain_zero: radians = math.radians(180)
 
 # odometry
 odometry_tag_distance_threshold: meters = 2.5
