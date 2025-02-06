@@ -4,7 +4,7 @@ from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.estimatedRobotPose import EstimatedRobotPose
 from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
-from wpimath.geometry import Transform3d, Pose3d
+from wpimath.geometry import Transform3d, Pose3d, Translation2d
 from wpilib import TimedRobot
 
 
@@ -20,7 +20,7 @@ class PhotonCamCustom:
             self.robot_to_camera
         )
         self.estimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
-        self.table = ntcore.NetworkTableInstance.getDefault().getTable("Cameras")
+        self.table = ntcore.NetworkTableInstance.getDefault().getTable("Cameras").getSubTable(self.name)
 
     def init(self):
         pass
@@ -33,7 +33,7 @@ class PhotonCamCustom:
             if pose:
                 estimatedPose = pose.estimatedPose.toPose2d()
                 self.table.putNumberArray(
-                    f"{self.name} estimated pose",
+                    "estimated pose",
                     [
                         estimatedPose.X(),
                         estimatedPose.Y(),
@@ -41,9 +41,10 @@ class PhotonCamCustom:
                     ]
                 )
 
-            self.table.putBoolean(f"{self.name} has target", result.hasTargets())
+            self.table.putBoolean("has target", result.hasTargets())
             if result.hasTargets():
                 self.table.putNumberArray("ids", [target.getFiducialId() for target in result.getTargets()])
+                self.table.putNumber("distance to closest target", result.getBestTarget().bestCameraToTarget.translation().toTranslation2d().distance(Translation2d(0, 0)))
 
 
     def get_estimated_robot_pose(self) -> Pose3d:

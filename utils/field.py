@@ -277,6 +277,10 @@ class NT_Updater:
 def get_red_pose(
     pose: Pose2d | Pose3d | Translation2d,
 ) -> Pose2d | Pose3d | Translation2d:
+    """
+    Takes in a Pose2d, Pose3d, or Translation2d on the blue side of the field 
+    and returns the corresponding type on the red side of the field, still using the blue origin.
+    """
     if isinstance(pose, Pose2d):
         return Pose2d(
             Translation2d(

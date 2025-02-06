@@ -15,7 +15,7 @@ import utils
 from oi.OI import OI
 from pathplannerlib.auto import PathPlannerPath, FollowPathCommand, AutoBuilder
 from wpimath.geometry import Pose2d, Rotation2d, Transform2d
-from utils import FieldConstants
+from utils import get_red_pose
 from wpilib import DriverStation
 
 
@@ -143,7 +143,7 @@ class _Robot(wpilib.TimedRobot):
     def autonomousInit(self):
         self.log.info("Autonomous initialized")
         path = PathPlannerPath.fromChoreoTrajectory("Four L4 Left")
-        starting_pose = FieldConstants.get_red_pose(path.getStartingHolonomicPose()) if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed else path.getStartingHolonomicPose()
+        starting_pose = get_red_pose(path.getStartingHolonomicPose()) if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed else path.getStartingHolonomicPose()
         Robot.drivetrain.reset_odometry_auto(starting_pose)
         self.scheduler.schedule(commands2.SequentialCommandGroup(
             command.DrivetrainZero(Robot.drivetrain, starting_pose.rotation().radians()),

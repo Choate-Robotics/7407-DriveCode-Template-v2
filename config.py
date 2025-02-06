@@ -88,7 +88,7 @@ MOVE_CONFIG = TalonConfig(
     current_limit=50,
 )
 
-auto_translation_pid = PIDConstants(8, 0.0, 0.1)
+auto_translation_pid = PIDConstants(6, 0.0, 0.1)
 auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
 
 # TO CHANGE
