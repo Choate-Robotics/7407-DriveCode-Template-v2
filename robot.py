@@ -123,7 +123,10 @@ class _Robot(wpilib.TimedRobot):
 
         Robot.drivetrain.update_tables()
         Sensors.cam_controller.update_tables()
-        ...
+        LEDs.leds.set_LED(255,0,0)
+        LEDs.leds.periodic()
+        # LEDs.leds.set_LED(*config.active_leds)
+        # LEDs.leds.cycle()
 
     # Initialize subsystems
 

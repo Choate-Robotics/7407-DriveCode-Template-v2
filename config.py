@@ -93,3 +93,8 @@ auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
 
 # TO CHANGE
 period = 0.03
+
+
+#Leds
+leds_id = 0 #placeholder
+leds_size = 7 #placeholder

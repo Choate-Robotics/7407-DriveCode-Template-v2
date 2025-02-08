@@ -74,7 +74,7 @@ class LocalLogger:
         self.name = name
         self.dlm = DataLogManager
         if config.LOGGING:
-            self.dlm.start("home/lvuser/py/logs/")
+            self.dlm.start("logs/")
             self.log_data = self.dlm.getLog()
             self.custom_entry = StringLogEntry(self.log_data, f"messages/{self.name}")
 
