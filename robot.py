@@ -62,13 +62,13 @@ class _Robot(wpilib.TimedRobot):
             try:
                 init_subsystems()
             except Exception as e:
-                self.log.error(e)
+                self.log.error(str(e))
                 self.nt.getTable("errors").putString("subsystem init", str(e))
         else:
             try:
                 init_subsystems()
             except Exception as e:
-                self.log.error(e)
+                self.log.error(str(e))
                 self.nt.getTable("errors").putString("subsystem init", str(e))
                 raise e
 
@@ -77,9 +77,11 @@ class _Robot(wpilib.TimedRobot):
 
         OI.init()
         OI.map_controls()
+        # Initialize LEDs
+        LEDs.leds.init()
         
         self.log.complete("Robot initialized")
-        ...
+
 
     def robotPeriodic(self):
         fms_table = ntcore.NetworkTableInstance.getDefault().getTable("FMSInfo")
@@ -102,13 +104,13 @@ class _Robot(wpilib.TimedRobot):
             try:
                 self.scheduler.run()
             except Exception as e:
-                self.log.error(e)
+                self.log.error(str(e))
                 self.nt.getTable("errors").putString("command scheduler", str(e))
         else:
             try:
                 self.scheduler.run()
             except Exception as e:
-                self.log.error(e)
+                self.log.error(str(e))
                 self.nt.getTable("errors").putString("command scheduler", str(e))
                 raise e
             
@@ -123,14 +125,17 @@ class _Robot(wpilib.TimedRobot):
 
         Robot.drivetrain.update_tables()
         Sensors.cam_controller.update_tables()
-        LEDs.leds.set_LED(255,0,0)
+
+        # Set and display LEDs
+
+        LEDs.leds.set_LED(255, 0, 0)
         LEDs.leds.periodic()
         # LEDs.leds.set_LED(*config.active_leds)
         # LEDs.leds.cycle()
 
-    # Initialize subsystems
+        # Initialize subsystems
 
-    # Pneumatics
+        # Pneumatics
 
     def teleopInit(self):
         self.log.info("Teleop initialized")

@@ -2,7 +2,8 @@ from wpilib import DataLogManager, Timer, DriverStation, TimedRobot
 from wpilib.deployinfo import getDeployData
 from wpiutil.log import StringLogEntry
 import config
-
+from enum import IntEnum
+import os
 
 class BColors:
     """
@@ -34,7 +35,7 @@ class LocalLogger:
     :param name: The name of the thing being logged
     :type name: str"""
 
-    class LogLevels:
+    class LogLevels(IntEnum):
         """
         Log levels for the logger
 
@@ -67,14 +68,27 @@ class LocalLogger:
 
         SETUP = 4
 
+        MATCH = 5
+
     log_data = None
     custom_entry = None
 
     def __init__(self, name: str):
-        self.name = name
-        self.dlm = DataLogManager
+        usb_path = "/u/logs"
+        self.name: str = name
+        self.dlm: DataLogManager = DataLogManager
         if config.LOGGING:
-            self.dlm.start("logs/")
+            # Check if the USB mount exists
+            if os.path.exists(usb_path):
+                self.dlm.start(usb_path)
+                self.dlm.log("Logging to USB stick at /u/logs")
+            else:
+                self.dlm.start("logs/")  # Default internal storage
+                self.dlm.log("USB not found, logging to internal storage.")
+
+
+
+            #self.dlm.start("logs/")
             self.log_data = self.dlm.getLog()
             self.custom_entry = StringLogEntry(self.log_data, f"messages/{self.name}")
 
@@ -87,7 +101,9 @@ class LocalLogger:
         This should only be called in robotInit
         """
         self.get_log_levels()
-        self.get_deploy_info()
+        branch, date, by = self.get_deploy_info()
+        deploy_msg = f"Deploy Info\n Branch: {branch}\n Deployment Date: {date}\n Deployed By: {by}"
+        self.setup(deploy_msg)
         self.log_driverstation(True)
         self.setup("Robot logging initialized")
 
@@ -100,19 +116,23 @@ class LocalLogger:
         if data is None:
             if TimedRobot.isSimulation():
                 self.setup("Running in simulation")
-                return
+                return "Simulation", "Simulation", "Simulation"
             self.setup("Deploy info not found")
-            return
+            return "Missing", "Missing", "Missing"
 
-        host = data["deploy-host"]
+        branch = data["git"]["branch"]
 
-        date = data["deploy-date"]
+        date = data["deploy"]["date"]
 
-        by = data["deploy-user"]
+        by = data["deploy"]["user"]
 
-        string = f"Deploy Info\n Host: {host}\n Deployment Date: {date}\n Deployed By: {by}"
 
-        self.setup(string)
+        # if branch != "master" and branch != "main":
+        #     self.setup(string)
+        # else:
+        #     self.setup(string)
+        #self.setup(string)
+        return branch, date, by
 
     def get_log_levels(self):
         """
@@ -120,11 +140,12 @@ class LocalLogger:
 
         :returns: str"""
 
-        if config.LOGGING == False:
-            self.setup("WARNING: Logging to file is disabled")
-        else:
+        if config.LOGGING:
             self.setup("Logging to file is enabled")
             self.setup(f"Log File Level: {config.LOG_FILE_LEVEL}")
+        else:
+            self.setup("WARNING: Logging to file is disabled")
+
         self.setup(f"Log Out Level: {config.LOG_OUT_LEVEL}")
 
     def log_driverstation(self, joysticks: bool):

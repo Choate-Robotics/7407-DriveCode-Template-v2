@@ -37,6 +37,7 @@ class LEDs:
     leds = sensors.LED_String(config.leds_id, config.leds_size)
 
 
+
 class PowerDistribution:
     pass
 

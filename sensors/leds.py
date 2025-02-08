@@ -13,7 +13,7 @@ class LED_String():
         self.size = size
 
         self.port = port
-
+        self.log = LocalLogger("LEDs")
 
         self.speed = 5
         self.brightness = 1
@@ -22,6 +22,8 @@ class LED_String():
         #self.blinkfrequency = 1.5  # seconds
         #self.rightlimit = 100
         #self.leftlimit = 50
+        self.led_strip = None
+        self.led_buffer = None
 
     def init(self):
         """
@@ -39,7 +41,7 @@ class LED_String():
 
         #self.led.setData(self.ledBuffer)
 
-        LocalLogger.setup("LEDS", "LEDs Initialized")
+        self.log.setup("LEDs Initialized")
 
     def enable(self):
         # Working
