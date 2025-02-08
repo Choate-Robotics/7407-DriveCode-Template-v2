@@ -95,6 +95,48 @@ auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
 period = 0.03
 
 
-#Leds
-leds_id = 0 #placeholder
-leds_size = 7 #placeholder
+leds_id = 8
+leds_size = 7
+
+class LEDType:
+    def KStatic(r, g, b):
+        return {"type": 1, "color": {"r": r, "g": g, "b": b}}
+
+    def KRainbow():
+        return {
+            'type': 2
+        }
+
+    def KTrack(r1, g1, b1, r2, g2, b2):
+        return {
+            "type": 3,
+            "color": {"r1": r1, "g1": g1, "b1": b1, "r2": r2, "g2": g2, "b2": b2},
+        }
+
+    def KBlink(r, g, b):
+        return {"type": 4, "color": {"r": r, "g": g, "b": b}}
+
+    def KLadder(typeA, typeB, percent, speed):
+        return {
+            "type": 5,
+            "percent": percent,  # 0-1
+            "typeA": typeA,
+            "typeB": typeB,
+            "speed": speed,
+        }
+
+    def __getitem__(self, item):
+        if item == 1:
+            return self.KStatic
+        elif item == 3:
+            return self.KTrack
+        elif item == 4:
+            return self.KBlink
+        elif item == 5:
+            return self.KLadder
+        else:
+            raise KeyError(f"Type {item} is not supported.")
+
+
+active_leds: tuple[LEDType, float, float] = (LEDType.KStatic(0, 0, 255), 1, 5)
+

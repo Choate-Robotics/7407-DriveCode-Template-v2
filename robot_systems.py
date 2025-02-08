@@ -34,7 +34,7 @@ class Sensors:
 
 
 class LEDs:
-    leds = sensors.LED_String(config.leds_id, config.leds_size)
+    leds = sensors.ALeds(config.leds_id, config.leds_size)
 
 
 

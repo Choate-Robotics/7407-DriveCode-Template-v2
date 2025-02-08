@@ -1,67 +1,48 @@
-from wpilib import AddressableLED, PowerDistribution, SmartDashboard, LEDPattern, Color
+from wpilib import AddressableLED, PowerDistribution, SmartDashboard
 import math, config
-from utils.local_logger import LocalLogger
 
-class LED_String():
-    """
-    Addressable LEDs
+class ALeds:
+    m_led: AddressableLED
 
-    """
-
-    def __init__(self, port: int, size: int):
-
+    def __init__(self, id: int, size: int):
         self.size = size
-
-        self.port = port
-        self.log = LocalLogger("LEDs")
-
+        self.id = id
         self.speed = 5
+        self.track_index = 0
+        self.blink_index = 0
+        self.active_mode = None
+        self.last_active_mode = None
+        self.last_brightness = None
+        self.last_speed = None
         self.brightness = 1
-        """ density of *120* per meter"""
-        self.LEDSpacing = 1 / 60
-        #self.blinkfrequency = 1.5  # seconds
-        #self.rightlimit = 100
-        #self.leftlimit = 50
-        self.led_strip = None
-        self.led_buffer = None
 
     def init(self):
-        """
-        initialize new LED strip connected to PWM port
-        """
-        self.led_strip = AddressableLED(self.port)
-        self.led_buffer = [AddressableLED.LEDData() for i in range(self.size)]
-        self.led_strip.setLength(self.size)
-        self.enable()
-        """
-        create new 
-        """
-        #self.ledBuffer = self.led.LEDData()
-        #self.ledBuffer.setLength(self.size)
+        self.m_rainbowFirstPixelHue = 0
+        self.m_led = AddressableLED(self.id)
+        self.m_led.setLength(self.size)  # 27
+        self.m_ledBuffer = self.m_led.LEDData()
+        self.led_data = [self.m_ledBuffer for i in range(self.size)]
+        self.m_led.setData(self.led_data)
 
-        #self.led.setData(self.ledBuffer)
-
-        self.log.setup("LEDs Initialized")
+        SmartDashboard.putBoolean("LEDs Initialized", True)
 
     def enable(self):
-        # Working
-        self.led_strip.start()
+        self.m_led.start()
 
     def disable(self):
-        # Working
-        self.led_strip.stop()
+        self.m_led.stop()
 
     def set_brightness(self, brightness: float):
-        # No errors, but does it do anything.
         self.brightness = brightness
 
     def get_led_data(self):
-        # No errors, but does it do anything.
-        return self.led_buffer.copy()
+        return [self.m_led.LEDData() for i in range(self.size)].copy()
+
+    def get_current_cycle(self):
+        return self.led_data
 
     def get_current_type(self):
-        # Don't understand what this is supposed to do
-        if self.mode is None:
+        if self.active_mode is None:
             return {
                 'type': 0,
                 'color': {
@@ -70,58 +51,144 @@ class LED_String():
                     'b': 0
                 }
             }
-        return self.mode
+        return self.active_mode
 
-    def set_LED(self, brightness: float = 1.0, speed: int = 5):
+    def store_current(self):
+        self.last_active_mode = self.active_mode
+        self.last_speed = self.speed
+        self.last_brightness = self.brightness
+
+    def set_LED(self, type, brightness: float = 1.0, speed: int = 5):
+        self.store_current()
+        self.active_mode = type
         self.speed = speed
         self.brightness = brightness
 
-    def set_Solid(self, r: int, g: int, b: int):
-        # The one that I think works right now
-        self.solid = LEDPattern.solid(Color(r, g, b), self.brightness)
-        self.solid.applyTo(self.led_buffer)
-        self.mode = "solid"
+    def set_last_current(self):
+        self.active_mode = self.last_active_mode
+        self.speed = self.last_speed
+        self.brightness = self.last_brightness
 
-    def set_Rainbow_Ladder(self):
+    def match(self, type: config.LEDType):
+        res = self.get_led_data()
+        match type['type']:
+            case 1:
+                color = type['color']
+                res = self._setStatic(color['r'], color['g'], color['b'])
+            case 2:
+                res = self._setRainbow()
+            case 3:
+                color = type['color']
+                res = self._setTrack(color['r1'], color['g1'], color['b1'], color['r2'], color['g2'], color['b2'])
+            case 4:
+                color = type['color']
+                res = self._setBlink(color['r'], color['g'], color['b'])
+            case 5:
+                percent = type['percent']
+                res = self._setLadder(type['typeA'], type['typeB'], percent, type['speed'])
+            case _:
+                res = self._setRainbow()
 
-        self.rainbow = LEDPattern.rainbow(self.speed, self.brightness)
-        # scrolls the rainbow
-        self.scrollingRainbow = self.rainbow.scrollAtAbsoluteSpeed(self.speed, self.LEDSpacing)
-        self.scrollingRainbow.applyTo(self.led_buffer)
-        self.mode = "rainbow"
+        return res
 
-    def set_Blink(self, r, g, b, blinkfrequency):
-        self.base = LEDPattern.blink(Color(r, g, b), Color(0, 0, 0), blinkfrequency, self.brightness)
-        #self.base = LEDPattern.discontinousGradient(Color(r, g, b), Color(0, 0, 0), self.brightness)
-        #self.pattern = self.base
-        self.base.applyTo(self.led_buffer)
-        #self.led.setData(self.baseledBuffer)
+    def cycle(self):
+        self.m_led.setData(self.match(self.active_mode))
 
-        self.mode = "blink"
+    def _setStatic(self, red: int, green: int, blue: int):
 
-    # def field_position(self, r1, g1, b1, r2, b2, g2):
-    #     """
-    #     identify where the robot is on the field
-    #
-    #     """
-    #     self.robotposition = 0
-    #
-    #     if self.robotposition > self.rightlimit:
-    #
-    #         # to do: left side green, right side red
-    #
-    #         self.mode = "robot position on starting line is too far right"
-    #
-    #     elif self.robotposition < self.leftlimit:
-    #
-    #         # to do: left side red, right side green
-    #         self.mode = "robot positioning on starting line is too far left"
-    #
-    #     else:
-    #         self.set_solid(0, 100, 0)  # robot is where it needs to be
+        static = self.get_led_data()
 
-    def periodic(self):
-        self.led_strip.setData(self.led_buffer)
+        for i in range(self.size):
+            static[i].setRGB(red, green, blue)
+
+        return static
+
+    def _setRainbow(self):
+        rainbow = self.get_led_data()
+        for i in range(self.size):
+            # Calculate the hue - hue is easier for rainbows because the color
+            # shape is a circle so only one value needs to precess
+            hue = math.floor((self.m_rainbowFirstPixelHue + (i * 180 / self.size)) % 180)
+            # Set the value
+            rainbow[i].setHSV(hue, 255, 128)
+
+        # Increase by to make the rainbow "move"
+        self.m_rainbowFirstPixelHue += self.speed
+
+        # Check bounds
+        self.m_rainbowFirstPixelHue %= 180
+
+        return rainbow
+
+    def _setTrack(self, r1, g1, b1, r2, g2, b2):
+        track = self.get_led_data()
+        for i in range(self.size):
+            track[i].setRGB(r1, g1, b1)
+
+        for i in range(self.track_index, self.size, 4):
+            track[i].setRGB(r2, g2, b2)
+
+        self.track_index += 1
+
+        if self.track_index > self.size:
+            self.track_index = 0
+
+        return track
+
+    def _setBlink(self, r, g, b):
+        blink = self.get_led_data()
+        if self.blink_index / (2 * self.speed) <= .5:
+            for i in range(self.size):
+                blink[i].setRGB(r, g, b)
+        else:
+            for i in range(self.size):
+                blink[i].setRGB(0, 0, 0)
+
+        self.blink_index += 1
+        if self.blink_index > 2 * self.speed:
+            self.blink_index = 0
+
+        return blink
+
+    def _setLadder(self, typeA: config.LEDType, typeB: config.LEDType, percent: float, speed: int):
+
+        if percent < 0:
+            percent = 0
+        elif percent > 1:
+            percent = 1
+
+        save = self.speed
+
+        self.speed = speed
+
+        b_led = self.match(typeB).copy()
+
+        b = []
+
+        for i, led_b in enumerate(b_led):
+            if i < math.floor(self.size * percent):
+                b.append(led_b)
+
+        self.speed = save
+
+        a_led: list = self.match(typeA).copy()
+
+        a: list = []
+
+        for i, led_a in enumerate(a_led):
+            if i < self.size - math.floor(self.size * percent):
+                a.append(led_a)
+
+        res = b + a
+
+        if len(res) > self.size:
+            del res[self.size:]
+        else:
+            return res.copy()
+
+        return self.led_data
+
+
 class SLEDS:
     """
     Switchable LEDS from Switchable PDH

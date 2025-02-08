@@ -128,10 +128,10 @@ class _Robot(wpilib.TimedRobot):
 
         # Set and display LEDs
 
-        LEDs.leds.set_LED(255, 0, 0)
-        LEDs.leds.periodic()
-        # LEDs.leds.set_LED(*config.active_leds)
-        # LEDs.leds.cycle()
+        config.active_leds = (config.LEDType.KStatic(255, 0, 0), 1, 5)
+
+        LEDs.leds.set_LED(*config.active_leds)
+        LEDs.leds.cycle()
 
         # Initialize subsystems
 
