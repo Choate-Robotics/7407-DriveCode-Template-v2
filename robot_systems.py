@@ -21,6 +21,14 @@ from utils.field import (
 
 class Robot:
     drivetrain = subsystem.Drivetrain()
+    led = subsystem.AddressableLEDStrip(
+        config.leds_id,
+        config.leds_size,
+        config.leds_speed,
+        config.leds_brightness,
+        config.leds_saturation,
+        config.leds_spacing,
+        )
 
 
 class Pneumatics:
@@ -33,8 +41,6 @@ class Sensors:
     cam_controller = sensors.PhotonController([left_cam, right_cam])
 
 
-class LEDs:
-    pass
 
 
 class PowerDistribution:

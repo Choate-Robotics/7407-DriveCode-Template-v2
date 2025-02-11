@@ -8,7 +8,7 @@ import command
 import math
 import config
 import constants
-from robot_systems import Robot, Pneumatics, Sensors, LEDs, PowerDistribution, Field
+from robot_systems import Robot, Pneumatics, Sensors, PowerDistribution, Field
 import sensors
 import subsystem
 import utils
@@ -77,7 +77,7 @@ class _Robot(wpilib.TimedRobot):
 
         OI.init()
         OI.map_controls()
-        
+        Robot.led.set_Solid(255, 215, 0)
         self.log.complete("Robot initialized")
         ...
 

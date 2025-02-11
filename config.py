@@ -93,3 +93,10 @@ auto_rotation_pid = PIDConstants(5.0, 0.0, 0.0)
 
 # TO CHANGE
 period = 0.03
+
+leds_id=9
+leds_size=27
+leds_spacing=1/120.0
+leds_speed=5
+leds_brightness = 128
+leds_saturation = 255
