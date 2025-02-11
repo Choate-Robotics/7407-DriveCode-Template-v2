@@ -1,6 +1,7 @@
-from wpilib import AddressableLED, PowerDistribution, Color, SmartDashboard, LEDPattern
+from wpilib import AddressableLED, Color, LEDPattern, SmartDashboard
 import math, config
 from toolkit.subsystem import Subsystem
+import ntcore
 
 
 class AddressableLEDStrip(Subsystem):
@@ -27,6 +28,7 @@ class AddressableLEDStrip(Subsystem):
         # self.rightlimit = rightlimit
         # self.leftlimit = leftlimit
         self.pattern = None
+        self.mode="None"
 
 
     def init(self):
@@ -34,7 +36,7 @@ class AddressableLEDStrip(Subsystem):
         initialize new LED strip connected to PWM port
         """
         self.led = AddressableLED(self.id)
-
+        self.led.setLength(self.size)
         self.ledBuffer = [self.led.LEDData() for i in range(self.size)]
         self.enable()
         SmartDashboard.putBoolean("LEDs Initialized", True)
@@ -61,8 +63,8 @@ class AddressableLEDStrip(Subsystem):
     #     return self.mode
 
     def set_Solid(self, r: int, g: int, b: int):
-
         self.pattern = LEDPattern.solid(Color(r, g, b))
+        self.mode=f"Solid r:{r} g:{g} b:{b}"
 
     def set_Rainbow_Ladder(self):
         """
@@ -99,6 +101,11 @@ class AddressableLEDStrip(Subsystem):
             self.set_solid(0, 100, 0)  # robot is where it needs to be
 
     def periodic(self):
-
+        #print(self.pattern)
+        self.update_tables()
         self.pattern.applyTo(self.ledBuffer)
         self.led.setData(self.ledBuffer)
+
+    def update_tables(self):
+        self.table=ntcore.NetworkTableInstance.getDefault().getTable("LEDS")
+        self.table.putString("mode", self.mode)
