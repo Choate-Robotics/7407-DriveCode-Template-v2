@@ -101,9 +101,11 @@ class AddressableLEDStrip(Subsystem):
             self.set_solid(0, 100, 0)  # robot is where it needs to be
 
     def periodic(self):
-        #print(self.pattern)
         self.update_tables()
-        self.pattern.applyTo(self.ledBuffer)
+        def set_pattern_writer(i:int,my_color:Color)->None:
+            self.ledBuffer[i].setLED(my_color)
+        ledreader=LEDPattern.LEDReader(self.ledBuffer.__getitem__, self.size)
+        self.pattern.applyTo(ledreader, set_pattern_writer)
         self.led.setData(self.ledBuffer)
 
     def update_tables(self):
