@@ -6,16 +6,16 @@ import ntcore
 class AddressableLEDStrip(Subsystem):
 
     def __init__(self,
-                 port: int,
-                 size: int,
-                 speed: int,
-                 brightness: int,
-                 saturation: int,
-                 spacing: int,
-                 # blink_frequency: int,
-                 # rightlimit,re
-                 # leftlimit
-                 ):
+            port: int,
+            size: int,
+            speed: int,
+            brightness: int,
+            saturation: int,
+            spacing: int,
+            # blink_frequency: int,
+            # rightlimit,re
+            # leftlimit
+            ):
 
         self.size = size
         self.port = port
