@@ -22,7 +22,7 @@ from utils.field import (
 class Robot:
     drivetrain = subsystem.Drivetrain()
     led = subsystem.AddressableLEDStrip(
-        config.leds_id,
+        config.leds_port,
         config.leds_size,
         config.leds_speed,
         config.leds_brightness,

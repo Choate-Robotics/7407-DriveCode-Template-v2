@@ -1,5 +1,4 @@
 from wpilib import AddressableLED, Color, LEDPattern, SmartDashboard
-import math, config
 from toolkit.subsystem import Subsystem
 import ntcore
 
@@ -7,19 +6,19 @@ import ntcore
 class AddressableLEDStrip(Subsystem):
 
     def __init__(self,
-                 id: int,
+                 port: int,
                  size: int,
                  speed: int,
                  brightness: int,
                  saturation: int,
                  spacing: int,
                  # blink_frequency: int,
-                 # rightlimit,
+                 # rightlimit,re
                  # leftlimit
                  ):
 
         self.size = size
-        self.id = id
+        self.port = port
         # self.speed = speed
         self.brightness = brightness
         self.saturation = saturation
@@ -35,7 +34,7 @@ class AddressableLEDStrip(Subsystem):
         """
         initialize new LED strip connected to PWM port
         """
-        self.led = AddressableLED(self.id)
+        self.led = AddressableLED(self.port)
         self.led.setLength(self.size)
         self.ledBuffer = [self.led.LEDData() for i in range(self.size)]
         self.enable()
@@ -65,6 +64,19 @@ class AddressableLEDStrip(Subsystem):
     def set_Solid(self, r: int, g: int, b: int):
         self.pattern = LEDPattern.solid(Color(r, g, b))
         self.mode=f"Solid r:{r} g:{g} b:{b}"
+
+    def set_Alternate(self, r1: int, g1: int, b1: int, r2:int, g2:int, b2: int):
+
+        self.alternate = []
+        for i in range(self.size):
+            if i % 2 == 0:
+                self.alternate.append((i/self.size, Color(r1, g1, b1)))
+            elif i % 2 == 1:
+                self.alternate.append((i/self.size, Color(r2, g2, b2)))
+
+        self.pattern = LEDPattern.steps(self.alternate)
+        self.mode = f"Alternate"
+
 
     def set_Rainbow_Ladder(self):
         """

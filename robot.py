@@ -77,7 +77,7 @@ class _Robot(wpilib.TimedRobot):
 
         OI.init()
         OI.map_controls()
-        Robot.led.set_Solid(255, 215, 0)
+        Robot.led.set_Alternate(255, 215, 0, 0, 255, 0)
         self.log.complete("Robot initialized")
         ...
 
