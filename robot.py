@@ -113,16 +113,16 @@ class _Robot(wpilib.TimedRobot):
                 raise e
             
         # Field.odometry.disable()
-        pose = Field.odometry.update()
+        # pose = Field.odometry.update()
 
-        self.nt.getTable("Odometry").putNumberArray("Estimated pose", [
-            pose.X(),
-            pose.Y(),
-            pose.rotation().radians()
-        ])
+        # self.nt.getTable("Odometry").putNumberArray("Estimated pose", [
+        #     pose.X(),
+        #     pose.Y(),
+        #     pose.rotation().radians()
+        # ])
 
         Robot.drivetrain.update_tables()
-        Sensors.cam_controller.update_tables()
+        # Sensors.cam_controller.update_tables()
         ...
 
     # Initialize subsystems
